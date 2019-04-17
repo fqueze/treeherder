@@ -2,13 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup, Input } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar as faStarSolid, faUser } from '@fortawesome/free-solid-svg-icons';
+import {
+  faStar as faStarSolid,
+  faUser,
+} from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 
 import { update } from '../../helpers/http';
 import { getApiUrl } from '../../helpers/url';
 import { endpoints } from '../constants';
-import { getAlertStatus, getSubtestsURL, getGraphsURL } from '../helpers';
+import { getStatus, getSubtestsURL, getGraphsURL } from '../helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import ProgressBar from '../ProgressBar';
 
@@ -91,10 +94,31 @@ export default class AlertTableRow extends React.Component {
         <span className={statusColor}>{alertStatus}</span>
         {alert.related_summary_id && this.getReassignment(alert)}){' '}
         <span className="result-links">
-          {resultSetMetadata &&
-          <a href={getGraphsURL(alert, resultSetMetadata.timeRange, repository, framework)} target="_blank" rel="noopener noreferrer"> graph</a>}
-          {alert.series_signature.has_subtests &&
-          <a href={getSubtestsURL(alert, this.props.alertSummary)} target="_blank" rel="noopener noreferrer"> · subtests</a>}
+          {resultSetMetadata && (
+            <a
+              href={getGraphsURL(
+                alert,
+                resultSetMetadata.timeRange,
+                repository,
+                framework,
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {' '}
+              graph
+            </a>
+          )}
+          {alert.series_signature.has_subtests && (
+            <a
+              href={getSubtestsURL(alert, this.props.alertSummary)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {' '}
+              · subtests
+            </a>
+          )}
         </span>
       </span>
     );
@@ -108,7 +132,7 @@ export default class AlertTableRow extends React.Component {
     const { user, alert } = this.props;
     const { starred } = this.state;
 
-    const alertStatus = getAlertStatus(alert);
+    const alertStatus = getStatus(alert.status);
     const tooltipText = alert.classifier_email
       ? `Classified by ${alert.classifier_email}`
       : 'Classified automatically';
@@ -117,9 +141,9 @@ export default class AlertTableRow extends React.Component {
 
     return (
       <tr className="justify-center">
-        <td className="alert-checkbox">
+        <td className="px-1">
           <FormGroup check>
-          {/* TODO aria label */}
+            {/* TODO aria label */}
             <Input
               type="checkbox"
               disabled={!user.isStaff}
@@ -145,7 +169,9 @@ export default class AlertTableRow extends React.Component {
             <span>{this.getTitleText(alert, alertStatus)}</span>
           )}
         </td>
-        <td className="table-width-md">{numberFormat.format(alert.prev_value)}</td>
+        <td className="table-width-md">
+          {numberFormat.format(alert.prev_value)}
+        </td>
         <td className="table-width-sm">
           <span
             className={alert.is_regression ? 'text-danger' : 'text-success'}
@@ -154,7 +180,9 @@ export default class AlertTableRow extends React.Component {
             {alert.prev_value > alert.new_value && <span>&gt;</span>}
           </span>
         </td>
-        <td className="table-width-md">{numberFormat.format(alert.new_value)}</td>
+        <td className="table-width-md">
+          {numberFormat.format(alert.new_value)}
+        </td>
         <td className="table-width-md">
           <SimpleTooltip
             textClass="detail-hint"
@@ -172,12 +200,21 @@ export default class AlertTableRow extends React.Component {
         <td className="table-width-sm">
           <SimpleTooltip
             textClass="detail-hint"
-            text={alert.manually_created ?
-              <FontAwesomeIcon
-                title="Alert created by a Sheriff"
-                icon={faUser}
-              /> : numberFormat.format(alert.t_value)}
-            tooltipText={alert.manually_created ? "Alert created by a Sheriff" : "Confidence value as calculated by Perfherder alerts. Note that this is NOT the same as the calculation used in the compare view"}
+            text={
+              alert.manually_created ? (
+                <FontAwesomeIcon
+                  title="Alert created by a Sheriff"
+                  icon={faUser}
+                />
+              ) : (
+                numberFormat.format(alert.t_value)
+              )
+            }
+            tooltipText={
+              alert.manually_created
+                ? 'Alert created by a Sheriff'
+                : 'Confidence value as calculated by Perfherder alerts. Note that this is NOT the same as the calculation used in the compare view'
+            }
           />
         </td>
       </tr>

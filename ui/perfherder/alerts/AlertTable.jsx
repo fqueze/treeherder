@@ -8,6 +8,7 @@ import perf from '../../js/perf';
 import AlertHeader from './AlertHeader';
 import StatusDropdown from './StatusDropdown';
 import AlertTableRow from './AlertTableRow';
+import DownstreamSummary from './DownstreamSummary';
 
 // TODO remove $stateParams and $state after switching to react router
 export class AlertTable extends React.Component {
@@ -31,9 +32,9 @@ export class AlertTable extends React.Component {
   };
 
   render() {
-    const { user, $rootScope, repos } = this.props;
+    const { user, $rootScope, repos, alertSummaries } = this.props;
     const { alertSummary } = this.state;
-
+    const summaryIdsLength = alertSummary.downstreamSummaryIds.length;
     return (
       <Container fluid className="px-0">
         <Form>
@@ -45,7 +46,7 @@ export class AlertTable extends React.Component {
                   className="text-left alert-summary-header-element"
                 >
                   <FormGroup check>
-                    <Label check>
+                    <Label check className="pl-1">
                       <Input
                         type="checkbox"
                         disabled={!user.isStaff}
@@ -81,6 +82,21 @@ export class AlertTable extends React.Component {
                     />
                   ),
               )}
+              {summaryIdsLength > 0 && (
+                <tr>
+                  <td colSpan="8" className="text-left text-muted pl-3 py-4">
+                    <span className="">Downstream alert summaries: </span>
+                    {alertSummary.downstreamSummaryIds.map((id, index) => (
+                      <DownstreamSummary
+                        key={id}
+                        id={id}
+                        alertSummaries={alertSummaries}
+                        position={summaryIdsLength - 1 - index}
+                      />
+                    ))}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </Table>
         </Form>
@@ -98,6 +114,7 @@ AlertTable.propTypes = {
   $rootScope: PropTypes.shape({
     $apply: PropTypes.func,
   }).isRequired,
+  alertSummaries: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 AlertTable.defaultProps = {
@@ -112,7 +129,7 @@ perf.component(
   'alertTable',
   react2angular(
     AlertTable,
-    ['alertSummary', 'user', 'repos'],
+    ['alertSummary', 'user', 'repos', 'alertSummaries'],
     ['$stateParams', '$state', '$rootScope'],
   ),
 );

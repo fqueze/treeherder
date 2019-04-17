@@ -9,7 +9,6 @@ import {
     alertIsOfState,
     getAlertSummaries,
     getAlertSummary,
-    getAlertSummaryTitle,
     getIssueTrackerUrl,
     getTextualSummary,
     modifySelectedAlerts,
@@ -370,23 +369,6 @@ perf.controller('AlertsCtrl', [
             });
         };
 
-        $scope.summaryTitle = {
-            html: '<i class="fas fa-spinner fa-pulse" aria-hidden="true"/>',
-            promise: null,
-        };
-
-        $scope.getSummaryTitle = function (id) {
-            $scope.summaryTitle.promise = getAlertSummaryTitle(id);
-            $scope.summaryTitle.promise.then(
-                function (summaryTitle) {
-                    $scope.summaryTitle.html = '<p>' + summaryTitle + '</p>';
-                });
-        };
-
-        $scope.resetSummaryTitle = function () {
-            $scope.summaryTitle.html = '<i class="fas fa-spinner fa-pulse" aria-hidden="true"/>';
-        };
-
         $scope.filtersUpdated = function () {
             const statusFilterChanged = (parseInt($state.params.status) !==
                                        $scope.filterOptions.status.id);
@@ -437,6 +419,7 @@ perf.controller('AlertsCtrl', [
             $rootScope.repos = repos;
             $q.all([getData(getApiUrl(endpoints.frameworks)).then(({ data: frameworks }) => {
                 $scope.frameworks = frameworks;
+                // this doesn't seem to be needed
             }), OptionCollectionModel.getMap().then(function (optionCollectionMap) {
                 $scope.optionCollectionMap = optionCollectionMap;
             })]).then(function () {

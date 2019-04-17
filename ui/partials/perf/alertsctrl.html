@@ -1,4 +1,5 @@
 <div class="container-fluid alerts-container">
+  <alerts-view user="user"></alerts-view>
   <div class="alert alert-warning" ng-show="!user.isStaff" role="alert">
     You must be logged into perfherder/treeherder and be a sheriff to make changes
   </div>
@@ -38,20 +39,7 @@
     No alerts for framework "{{filterOptions.framework.name}}" with status "{{filterOptions.status.text}}"
   </p>
   <div class="card alert-summary" ng-repeat="alertSummary in alertSummaries" ng-if="alertSummary.anyVisible">
-    <alert-table alert-summary="alertSummary" user="user" repos="repos"></alert-table>
-    <div class="card-body" ng-show="alertSummary.downstreamSummaryIds.length">
-      <p class="text-muted">
-        Downstream alert summaries:
-        <span class="text-muted" ng-repeat="summaryId in alertSummary.downstreamSummaryIds" >
-            <a href="perf.html#/alerts?id={{summaryId}}"
-                ng-mouseenter="getSummaryTitle(summaryId)"
-                ng-mouseleave="resetSummaryTitle()"
-                uib-tooltip-html="summaryTitle.html" >
-               #{{summaryId}}
-            </a>{{$last ? '' : ', '}}
-        </span>
-      </p>
-    </div>
+    <alert-table alert-summary="alertSummary" user="user" repos="repos" alert-summaries="alertSummaries"></alert-table>
     <div class="card-body button-panel" uib-collapse="!anySelected(alertSummary.alerts) && !(alertSummary.notes)">
       <div ng-show="anySelected(alertSummary.alerts)">
         <alert-controls alert-summary="alertSummary" is-alert-selected="isAlertSelected" alert-summaries="alertSummaries" update-alert-visibility="updateAlertVisibility"></alert-controls>       

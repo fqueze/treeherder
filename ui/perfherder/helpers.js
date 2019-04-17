@@ -423,11 +423,6 @@ const modifyAlert = (alert, modification) =>
 export const alertIsOfState = (alert, phAlertStatus) =>
   alert.status === phAlertStatus.id;
 
-export const getAlertStatus = alertSummary =>
-  Object.entries(alertSummaryStatus).find(
-    item => alertSummary.status === item[1],
-  )[0];
-
 let issueTrackers; // will cache on first AlertSummary call
 
 const getInitializedAlerts = (alertSummary, optionCollectionMap) =>
@@ -555,7 +550,7 @@ export const getTextualSummary = (alertSummary, copySummary) => {
 
 // TODO replace usage of getData on line 560 since modifyAlert/update now returns data
 export const refreshAlertSummary = alertSummary =>
-  getData(getApiUrl(`/performance/alertsummary/${alertSummary.id}/`)).then(
+  getData(getApiUrl(`${endpoints.alertSummary}${alertSummary.id}/`)).then(
     ({ data }) =>
       OptionCollectionModel.getMap().then(optionCollectionMap => {
         Object.assign(alertSummary, data);
@@ -632,7 +627,7 @@ export const getAlertSummaryStatusText = alertSummary =>
 
 export const getAlertSummary = id =>
   OptionCollectionModel.getMap().then(optionCollectionMap =>
-    getData(getApiUrl(`/performance/alertsummary/${id}/`)).then(({ data }) =>
+    getData(getApiUrl(`${endpoints.alertSummary}${id}/`)).then(({ data }) =>
       AlertSummary(data, optionCollectionMap),
     ),
   );
@@ -643,7 +638,7 @@ export const getAlertSummaryTitle = id =>
 export const getAlertSummaries = options => {
   let { href } = options;
   if (!options || !options.href) {
-    href = getApiUrl('/performance/alertsummary/');
+    href = getApiUrl(endpoints.alertSummary);
 
     // add filter parameters for status and framework
     const params = [];
@@ -693,7 +688,7 @@ export const getAlertSummaries = options => {
 };
 
 export const createAlert = data =>
-  create(getApiUrl('/performance/alertsummary/'), {
+  create(getApiUrl(endpoints.alertSummary), {
     repository_id: data.project.id,
     framework_id: data.series.frameworkId,
     push_id: data.resultSetId,
@@ -725,3 +720,21 @@ export const nudgeAlert = (dataPoint, towardsDataPoint) => {
   const alertId = dataPoint.alert.id;
   return update(getApiUrl(`/performance/alert/${alertId}/`), towardsDataPoint);
 };
+
+export const convertParams = (params, value) =>
+  Boolean(params[value] !== undefined && parseInt(params[value], 10));
+
+export const getFrameworkData = props => {
+  const { framework, frameworks } = props;
+
+  if (framework) {
+    const frameworkObject = frameworks.find(
+      item => item.id === parseInt(framework, 10),
+    );
+    return frameworkObject;
+  }
+  return { id: 1, name: 'talos' };
+};
+
+export const getStatus = status =>
+  Object.entries(alertSummaryStatus).find(item => status === item[1])[0];

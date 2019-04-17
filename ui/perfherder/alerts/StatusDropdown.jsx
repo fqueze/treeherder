@@ -12,7 +12,7 @@ import {
   getAlertSummaryStatusText,
   getTextualSummary,
   getTitle,
-  getAlertStatus,
+  getStatus,
 } from '../helpers';
 import { getData, update } from '../../helpers/http';
 import { getApiUrl, bzBaseUrl, createQueryParams } from '../../helpers/url';
@@ -155,7 +155,7 @@ export default class StatusDropdown extends React.Component {
       showNotesModal,
     } = this.state;
     // TODO should this move to state?
-    const alertStatus = getAlertStatus(alertSummary);
+    const alertStatus = getStatus(alertSummary.status);
 
     return (
       <React.Fragment>
