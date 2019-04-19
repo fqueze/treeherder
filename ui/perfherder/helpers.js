@@ -635,6 +635,7 @@ export const getAlertSummary = id =>
 export const getAlertSummaryTitle = id =>
   getAlertSummary(id).then(alertSummary => getTitle(alertSummary));
 
+// TODO remove
 export const getAlertSummaries = options => {
   let { href } = options;
   if (!options || !options.href) {
@@ -652,6 +653,8 @@ export const getAlertSummaries = options => {
     if (options && options.frameworkFilter !== undefined) {
       params[params.length] = `framework=${options.frameworkFilter}`;
     }
+    // TODO replace all usage with createQueryParams except for
+    // signatureId and seriesSignature (used in graphs controller)
     if (options && options.signatureId !== undefined) {
       params[params.length] = `alerts__series_signature=${options.signatureId}`;
     }
@@ -738,3 +741,11 @@ export const getFrameworkData = props => {
 
 export const getStatus = status =>
   Object.entries(alertSummaryStatus).find(item => status === item[1])[0];
+
+export const processResponse = (response, state, errorMessages) => {
+  const { data, failureStatus } = response;
+  if (failureStatus) {
+    return { errorMessages: [...errorMessages, ...data] };
+  }
+  return { [state]: data };
+};

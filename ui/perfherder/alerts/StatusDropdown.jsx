@@ -29,23 +29,8 @@ export default class StatusDropdown extends React.Component {
     this.state = {
       showBugModal: false,
       showNotesModal: false,
-      issueTrackers: [],
-      issueTrackersError: null,
     };
   }
-
-  // TODO this is something else that can be moved to the parent level component
-  // so it is only fetching this once per page
-  getIssueTrackers = async () => {
-    const { data, failureStatus } = await getData(
-      getApiUrl(endpoints.issueTrackers),
-    );
-    this.setState(prevState => ({
-      showBugModal: !prevState.showBugModal,
-      issueTrackers: data,
-      issueTrackersError: failureStatus,
-    }));
-  };
 
   fileBug = async () => {
     const { alertSummary, repos } = this.props;
@@ -136,10 +121,9 @@ export default class StatusDropdown extends React.Component {
     (alertStatus !== status && this.isResolved(alertStatus));
 
   render() {
-    const { alertSummary, user, $rootScope } = this.props;
+    const { alertSummary, user, $rootScope, issueTrackers } = this.props;
     const {
       showBugModal,
-      issueTrackers,
       issueTrackersError,
       showNotesModal,
     } = this.state;
@@ -179,7 +163,7 @@ export default class StatusDropdown extends React.Component {
             {user.isStaff && (
               <React.Fragment>
                 {!alertSummary.bug_number ? (
-                  <DropdownItem onClick={this.getIssueTrackers}>
+                  <DropdownItem onClick={() => this.toggle('showBugModal')}>
                     Link to bug
                   </DropdownItem>
                 ) : (
@@ -257,4 +241,5 @@ StatusDropdown.propTypes = {
   user: PropTypes.shape({}).isRequired,
   $rootScope: PropTypes.shape({}).isRequired,
   updateAlertSummary: PropTypes.func.isRequired,
+  issueTrackers: PropTypes.array(PropTypes.shape({})).isRequired,
 };

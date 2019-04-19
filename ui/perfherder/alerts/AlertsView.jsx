@@ -2,14 +2,25 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 import { Alert, Container } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCog } from '@fortawesome/free-solid-svg-icons';
 
 import perf from '../../js/perf';
 import withValidation from '../Validation';
-import { convertParams, getFrameworkData, getStatus } from '../helpers';
-import { alertSummaryStatus } from '../constants';
-import FilterControls from '../FilterControls';
+import {
+  convertParams,
+  getFrameworkData,
+  getStatus,
+  processResponse,
+} from '../helpers';
+import { alertSummaryStatus, endpoints } from '../constants';
+import { createQueryParams, getApiUrl } from '../../helpers/url';
+import { getData } from '../../helpers/http';
+import ErrorMessages from '../../shared/ErrorMessages';
+import OptionCollectionModel from '../../models/optionCollection';
 
 import AlertsViewControls from './AlertsViewControls';
+import AlertTable from './AlertTable';
 
 // TODO remove $stateParams and $state after switching to react router
 export class AlertsView extends React.Component {
@@ -19,9 +30,15 @@ export class AlertsView extends React.Component {
     this.state = {
       status: this.getDefaultStatus(),
       framework: getFrameworkData(this.validated),
-      page: this.validated.page ? parseInt(this.validated.page) : 1,
+      page: this.validated.page ? parseInt(this.validated.page, 10) : 1,
+      errorMessages: [],
+      alertSummaries: [],
+      issueTrackers: [],
+      loading: true,
+      optionCollectionMap: null,
     };
   }
+
   // TODO need to add alert validation to Validation component
   // if ($stateParams.id) {
   //   $scope.alertId = $stateParams.id;
@@ -30,18 +47,9 @@ export class AlertsView extends React.Component {
   //           addAlertSummaries([data], null);
   //       });
   componentDidMount() {
-
+    this.fetchAlertSummaries();
   }
-    // getAlertSummaries({
-    //     statusFilter: $scope.filterOptions.status.id,
-    //     frameworkFilter: $scope.filterOptions.framework.id,
-    //     page: $scope.filterOptions.page,
-    // }).then(
-    //     function (data) {
-    //         addAlertSummaries(data.results, data.next);
-    //         $scope.alertSummaryCurrentPage = $scope.filterOptions.page;
-    //         $scope.alertSummaryCount = data.count;
-    // });
+  // TODO send data to tableControls to filter summaries
 
   getDefaultStatus = () => {
     const { validated } = this.props;
@@ -66,15 +74,66 @@ export class AlertsView extends React.Component {
     this.props.validated.updateParams({ status: statusId });
     // TODO fetch new data, use statusId as param
     this.setState({ status });
+  };
+
+  // TODO potentially pass as a prop for testing purposes
+  async fetchAlertSummaries() {
+    const {
+      framework,
+      status,
+      page,
+      errorMessages,
+      issueTrackers,
+      optionCollectionMap,
+    } = this.state;
+    let updates = { loading: false };
+    const url = getApiUrl(
+      `${endpoints.alertSummary}${createQueryParams({
+        framework: framework.id,
+        status: alertSummaryStatus[status],
+        page,
+      })}`,
+    );
+    // TODO OptionCollectionModel to use getData wrapper
+    if (!issueTrackers.length && !optionCollectionMap) {
+      const [optionCollectionMap, issueTrackers] = await Promise.all([
+        OptionCollectionModel.getMap(),
+        getData(getApiUrl(endpoints.issueTrackers)),
+      ]);
+
+      updates = {
+        ...updates,
+        ...{ optionCollectionMap },
+        ...processResponse(issueTrackers, 'issueTrackers', errorMessages),
+      };
+    }
+    const data = await getData(url);
+    const response = processResponse(data, 'alertSummaries', errorMessages);
+
+    if (response.alertSummaries) {
+      updates = {
+        ...updates,
+        ...{ alertSummaries: response.alertSummaries.results },
+      };
+    } else {
+      updates = { ...updates, ...response };
+    }
+    this.setState(updates);
   }
 
   render() {
     const { user, validated } = this.props;
-    const { framework, status } = this.state;
-    const { frameworks } = validated;
+    const {
+      framework,
+      status,
+      errorMessages,
+      loading,
+      alertSummaries,
+    } = this.state;
+    const { frameworks, projects } = validated;
 
     const frameworkNames =
-    frameworks && frameworks.length ? frameworks.map(item => item.name) : [];
+      frameworks && frameworks.length ? frameworks.map(item => item.name) : [];
 
     const alertDropdowns = [
       {
@@ -91,6 +150,23 @@ export class AlertsView extends React.Component {
 
     return (
       <Container fluid className="max-width-default">
+        {loading && (
+          <div className="loading">
+            <FontAwesomeIcon
+              icon={faCog}
+              size="4x"
+              spin
+              title="loading page, please wait"
+            />
+          </div>
+        )}
+
+        {errorMessages.length > 0 && (
+          <Container className="pt-5 max-width-default">
+            <ErrorMessages errorMessages={errorMessages} />
+          </Container>
+        )}
+
         {!user.isStaff && (
           <Alert color="info">
             You must be logged into perfherder/treeherder and be a sheriff to
@@ -98,6 +174,17 @@ export class AlertsView extends React.Component {
           </Alert>
         )}
         <AlertsViewControls {...this.props} dropdownOptions={alertDropdowns} />
+        {alertSummaries.length > 0 &&
+          alertSummaries.map(alertSummary => (
+            <AlertTable
+              key={alertSummary.id}
+              alertSummary={alertSummary}
+              user={user}
+              repos={projects}
+              alertSummaries={alertSummaries}
+              issueTrackers={issueTrackers}
+            />
+          ))}
       </Container>
     );
   }
@@ -107,7 +194,12 @@ AlertsView.propTypes = {
   $stateParams: PropTypes.shape({}),
   $state: PropTypes.shape({}),
   user: PropTypes.shape({}).isRequired,
-  validated: PropTypes.shape({}).isRequired,
+  validated: PropTypes.shape({
+    projects: PropTypes.arrayOf(PropTypes.shape({})),
+    frameworks: PropTypes.arrayOf(PropTypes.shape({})),
+    updateParams: PropTypes.func.isRequired,
+    framework: PropTypes.string,
+  }).isRequired,
 };
 
 AlertsView.defaultProps = {

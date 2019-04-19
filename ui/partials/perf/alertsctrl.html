@@ -1,6 +1,6 @@
-<div class="container-fluid alerts-container">
+<!-- <div class="container-fluid alerts-container"> -->
   <alerts-view user="user"></alerts-view>
-  <div class="alert alert-warning" ng-show="!user.isStaff" role="alert">
+  <!-- <div class="alert alert-warning" ng-show="!user.isStaff" role="alert">
     You must be logged into perfherder/treeherder and be a sheriff to make changes
   </div>
   <form class="form-inline">
@@ -38,9 +38,9 @@
   <p class="lead text-center" ng-show="alertSummaries && !alertSummaries.length">
     No alerts for framework "{{filterOptions.framework.name}}" with status "{{filterOptions.status.text}}"
   </p>
-  <div class="card alert-summary" ng-repeat="alertSummary in alertSummaries" ng-if="alertSummary.anyVisible">
-    <alert-table alert-summary="alertSummary" user="user" repos="repos" alert-summaries="alertSummaries"></alert-table>
-    <div class="card-body button-panel" uib-collapse="!anySelected(alertSummary.alerts) && !(alertSummary.notes)">
+  <div class="card alert-summary" ng-repeat="alertSummary in alertSummaries" ng-if="alertSummary.anyVisible"> -->
+    <!-- <alert-table alert-summary="alertSummary" user="user" repos="repos" alert-summaries="alertSummaries"></alert-table> -->
+    <!-- <div class="card-body button-panel" uib-collapse="!anySelected(alertSummary.alerts) && !(alertSummary.notes)">
       <div ng-show="anySelected(alertSummary.alerts)">
         <alert-controls alert-summary="alertSummary" is-alert-selected="isAlertSelected" alert-summaries="alertSummaries" update-alert-visibility="updateAlertVisibility"></alert-controls>       
           
@@ -92,4 +92,4 @@
         ng-show="alertSummaryCount > alertSummaryPageSize" max-size="10"
         total-items="alertSummaryCount" items-per-page="alertSummaryPageSize"
         rotate="false" boundary-link-numbers="true"></ul>
-</div>
+</div> -->

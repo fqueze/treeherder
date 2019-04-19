@@ -74,11 +74,7 @@ export default class AlertTableRow extends React.Component {
   };
 
   getTitleText = (alert, alertStatus) => {
-    const {
-      repository,
-      framework,
-      resultSetMetadata,
-    } = this.props.alertSummary;
+    const { repository, framework } = this.props.alertSummary;
 
     let statusColor = '';
     if (alertStatus === 'invalid') {
@@ -94,21 +90,19 @@ export default class AlertTableRow extends React.Component {
         <span className={statusColor}>{alertStatus}</span>
         {alert.related_summary_id && this.getReassignment(alert)}){' '}
         <span className="result-links">
-          {resultSetMetadata && (
-            <a
-              href={getGraphsURL(
-                alert,
-                resultSetMetadata.timeRange,
-                repository,
-                framework,
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {' '}
-              graph
-            </a>
-          )}
+          <a
+            href={getGraphsURL(
+              alert,
+              this.props.timeRange,
+              repository,
+              framework,
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {' '}
+            graph
+          </a>
           {alert.series_signature.has_subtests && (
             <a
               href={getSubtestsURL(alert, this.props.alertSummary)}
@@ -233,6 +227,7 @@ AlertTableRow.propTypes = {
   alert: PropTypes.shape({
     starred: PropTypes.bool,
   }).isRequired,
+  timeRange: PropTypes.number.isRequired,
 };
 
 AlertTableRow.defaultProps = {

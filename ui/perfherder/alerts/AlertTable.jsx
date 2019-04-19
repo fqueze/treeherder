@@ -1,23 +1,53 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular/index.es2015';
 import { Container, Form, FormGroup, Label, Input, Table } from 'reactstrap';
 
-import perf from '../../js/perf';
+import {
+  phAlertStatusMap,
+  phDefaultTimeRangeValue,
+  phTimeRanges,
+} from '../../helpers/constants';
 
 import AlertHeader from './AlertHeader';
 import StatusDropdown from './StatusDropdown';
 import AlertTableRow from './AlertTableRow';
 import DownstreamSummary from './DownstreamSummary';
 
-// TODO remove $stateParams and $state after switching to react router
-export class AlertTable extends React.Component {
+export default class AlertTable extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       alertSummary: this.props.alertSummary,
+      downstreamIds: [],
     };
   }
+
+ // TODO call getInitializedAlerts(alert, optionCollectionMap) to create title on each alert
+  componentDidMount() {
+    this.getDownstreamList();
+  }
+
+  getDownstreamList = () => {
+    const { alertSummary } = this.props;
+
+    const downstreamIds = [
+      ...new Set(
+        alertSummary.alerts
+          .map(alert => {
+            if (
+              alert.status === phAlertStatusMap.DOWNSTREAM.id &&
+              alert.summary_id !== alertSummary.id
+            ) {
+              return [alert.summary_id];
+            }
+            return [];
+          })
+          .reduce((a, b) => [...a, ...b], []),
+      ),
+    ];
+
+    this.setState({ downstreamIds });
+  };
 
   selectAlerts = () => {
     const { alertSummary: oldAlertSummary } = this.state;
@@ -28,13 +58,34 @@ export class AlertTable extends React.Component {
       alert.selected = alert.visible && alertSummary.allSelected;
     });
     this.setState({ alertSummary });
-    this.props.$rootScope.$apply();
+  };
+
+  // TODO move to alertTableRow
+  getTimeRange = () => {
+    const { alertSummary } = this.props;
+
+    const defaultTimeRange =
+      alertSummary.repository === 'mozilla-beta'
+        ? 7776000
+        : phDefaultTimeRangeValue;
+    const timeRange = Math.max(
+      defaultTimeRange,
+      phTimeRanges
+        .map(time => time.value)
+        .find(
+          value => Date.now() / 1000.0 - alertSummary.push_timestamp < value,
+        ),
+    );
+
+    return timeRange;
   };
 
   render() {
-    const { user, $rootScope, repos, alertSummaries } = this.props;
-    const { alertSummary } = this.state;
-    const summaryIdsLength = alertSummary.downstreamSummaryIds.length;
+    const { user, repos, alertSummaries } = this.props;
+    const { alertSummary, downstreamIds } = this.state;
+
+    const downstreamIdsLength = downstreamIds.length;
+
     return (
       <Container fluid className="px-0">
         <Form>
@@ -52,12 +103,12 @@ export class AlertTable extends React.Component {
                         disabled={!user.isStaff}
                         onClick={this.selectAlerts}
                       />
-                      <AlertHeader alertSummary={alertSummary} />
+                      <AlertHeader alertSummary={alertSummary} repos={repos} />
                     </Label>
                   </FormGroup>
                 </th>
                 <th className="table-width-sm align-top font-weight-normal">
-                  <StatusDropdown
+                  {/* <StatusDropdown
                     alertSummary={alertSummary}
                     repos={repos}
                     user={user}
@@ -65,7 +116,7 @@ export class AlertTable extends React.Component {
                     updateAlertSummary={alertSummary =>
                       this.setState({ alertSummary })
                     }
-                  />
+                  /> */}
                 </th>
               </tr>
             </thead>
@@ -79,19 +130,20 @@ export class AlertTable extends React.Component {
                       alertSummary={alertSummary}
                       alert={alert}
                       user={user}
+                      timeRange={this.getTimeRange()}
                     />
                   ),
               )}
-              {summaryIdsLength > 0 && (
+              {downstreamIdsLength > 0 && (
                 <tr>
                   <td colSpan="8" className="text-left text-muted pl-3 py-4">
                     <span className="">Downstream alert summaries: </span>
-                    {alertSummary.downstreamSummaryIds.map((id, index) => (
+                    {downstreamIds.map((id, index) => (
                       <DownstreamSummary
                         key={id}
                         id={id}
                         alertSummaries={alertSummaries}
-                        position={summaryIdsLength - 1 - index}
+                        position={downstreamIdsLength - 1 - index}
                       />
                     ))}
                   </td>
@@ -106,32 +158,14 @@ export class AlertTable extends React.Component {
 }
 
 AlertTable.propTypes = {
-  $stateParams: PropTypes.shape({}),
-  $state: PropTypes.shape({}),
   alertSummary: PropTypes.shape({}),
   user: PropTypes.shape({}),
   repos: PropTypes.arrayOf(PropTypes.shape({})),
-  $rootScope: PropTypes.shape({
-    $apply: PropTypes.func,
-  }).isRequired,
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 AlertTable.defaultProps = {
-  $stateParams: null,
-  $state: null,
   alertSummary: null,
   user: null,
   repos: null,
 };
-
-perf.component(
-  'alertTable',
-  react2angular(
-    AlertTable,
-    ['alertSummary', 'user', 'repos', 'alertSummaries'],
-    ['$stateParams', '$state', '$rootScope'],
-  ),
-);
-
-export default AlertTable;

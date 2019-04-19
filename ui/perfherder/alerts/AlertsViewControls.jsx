@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 // import SimpleTooltip from '../../shared/SimpleTooltip';
 import FilterControls from '../FilterControls';
 import { convertParams } from '../helpers';
-import { alertSummaryStatus } from '../constants';
+// import { alertSummaryStatus } from '../constants';
 
 export default class AlertsViewControls extends React.Component {
   constructor(props) {
@@ -135,4 +135,9 @@ export default class AlertsViewControls extends React.Component {
 
 AlertsViewControls.propTypes = {
   validated: PropTypes.shape({}).isRequired,
+  dropdownOptions: PropTypes.arrayOf(PropTypes.shape({})),
+};
+
+AlertsViewControls.defaultProps = {
+  dropdownOptions: null,
 };
