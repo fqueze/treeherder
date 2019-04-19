@@ -7,6 +7,8 @@ import {
   DropdownToggle,
 } from 'reactstrap';
 import moment from 'moment';
+import template from 'lodash/template';
+import templateSettings from 'lodash/templateSettings';
 
 import {
   getAlertSummaryStatusText,
@@ -45,22 +47,6 @@ export default class StatusDropdown extends React.Component {
     }));
   };
 
-  fillTemplate = (template, replacement) => {
-    let newTemplate = template;
-    const regex = {
-      revisionHref: /{+\srevisionHref\s}+/g,
-      alertHref: /{+\salertHref\s}+/g,
-      alertSummary: /{+\salertSummary\s}+/g,
-    };
-
-    for (const word of template.split(' ')) {
-      if (regex[word]) {
-        newTemplate = newTemplate.replace(regex[word], replacement[word]);
-      }
-    }
-    return newTemplate;
-  };
-
   fileBug = async () => {
     const { alertSummary, repos } = this.props;
     // TODO it seems like it'd make more sense to fetch this once and customize/cache it for future use rather than
@@ -84,7 +70,10 @@ export default class StatusDropdown extends React.Component {
         }`,
         alertSummary: getTextualSummary(alertSummary),
       };
-      const template = this.fillTemplate(result.text, templateArgs);
+
+      templateSettings.interpolate = /{{([\s\S]+?)}}/g;
+      const fillTemplate = template(result.text);
+      const commentText = fillTemplate(templateArgs);
 
       const pushDate = moment(
         alertSummary.resultSetMetadata.push_timestamp * 1000,
@@ -97,7 +86,7 @@ export default class StatusDropdown extends React.Component {
       window.open(
         `${bzBaseUrl}/enter_bug.cgi?${createQueryParams({
           cc: result.cc_list,
-          comment: template,
+          comment: commentText,
           component: result.default_component,
           product: result.default_product,
           keywords: result.keywords,
