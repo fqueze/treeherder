@@ -74,13 +74,6 @@
           </button>
         </span>
       </div>
-      <div ng-show="alertSummary.notes">
-        <p class="notes-preview bg-light rounded mt-2"
-           ng-text-truncate="alertSummary.notes"
-           ng-tt-chars-threshold="40"
-           ng-tt-more-label="Show"
-           ng-tt-less-label="Hide"></p>
-      </div>
     </div>
   </div>
   <p class="text-muted" ng-if="numFilteredAlertSummaries > 0">

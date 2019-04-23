@@ -343,10 +343,6 @@ th {
   border-bottom: 1px solid transparent;
 }
 
-.notes-preview {
-  white-space: pre-wrap;
-}
-
 .alert-summary-header-element {
   flex: none;
   padding: 8px;
@@ -447,4 +443,9 @@ li.pagination-next .material-icons::before {
 
 .pagination {
   margin: 20px 0;
+}
+
+/* for use with global max-width-default style */
+.max-width-row-text {
+  max-width: 1194px;
 }

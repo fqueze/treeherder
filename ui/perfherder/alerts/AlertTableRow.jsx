@@ -9,9 +9,9 @@ import {
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 
 import { update } from '../../helpers/http';
-import { getApiUrl } from '../../helpers/url';
+import { getApiUrl, createQueryParams } from '../../helpers/url';
 import { endpoints } from '../constants';
-import { getStatus, getSubtestsURL, getGraphsURL } from '../helpers';
+import { getStatus, getGraphsURL } from '../helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import ProgressBar from '../ProgressBar';
 
@@ -105,7 +105,7 @@ export default class AlertTableRow extends React.Component {
           </a>
           {alert.series_signature.has_subtests && (
             <a
-              href={getSubtestsURL(alert, this.props.alertSummary)}
+              href={this.getSubtestsURL}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -121,6 +121,21 @@ export default class AlertTableRow extends React.Component {
   // arbitrary scale from 0-20% multiplied by 5, capped
   // at 100 (so 20% regression === 100% bad)
   getCappedMagnitude = percent => Math.min(Math.abs(percent) * 5, 100);
+
+  getSubtestsURL = () => {
+    const { alert, alertSummary } = this.props;
+    const urlParameters = {
+      framework: alertSummary.framework,
+      originalProject: alertSummary.repository,
+      originalSignature: alert.series_signature.id,
+      newProject: alertSummary.repository,
+      newSignature: alert.series_signature.id,
+      originalRevision: alertSummary.prev_push_revision,
+      newRevision: alertSummary.revision,
+    };
+
+    return `#/comparesubtest${createQueryParams(urlParameters)}`;
+  };
 
   render() {
     const { user, alert } = this.props;
@@ -220,7 +235,6 @@ AlertTableRow.propTypes = {
   alertSummary: PropTypes.shape({
     repository: PropTypes.string,
     framework: PropTypes.number,
-    resultSetMetadata: PropTypes.shape({}),
     id: PropTypes.number,
   }).isRequired,
   user: PropTypes.shape({}),

@@ -10,14 +10,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 
-import RepositoryModel from '../../models/repository';
-import { getIssueTrackerUrl, getTitle } from '../helpers';
+import { getTitle } from '../helpers';
 import { getJobsUrl } from '../../helpers/url';
 
 // TODO refactor getIssueTracker URL - issue trackers being fetched in Alerts View
-const AlertHeader = ({ alertSummary, repos }) => {
-  const repo = repos.find(repo => repo.name === alertSummary.repository);
-  const repoModel = new RepositoryModel(repo);
+const AlertHeader = ({ alertSummary, repoModel, issueTrackers }) => {
+  const getIssueTrackerUrl = () => {
+    const { issueTrackerUrl } = issueTrackers.find(
+      tracker => tracker.id === alertSummary.issue_tracker,
+    );
+    return issueTrackerUrl + alertSummary.bug_number;
+  };
+  const bugNumber = alertSummary.bug_number
+    ? `Bug ${alertSummary.bug_number}`
+    : '';
 
   return (
     <div className="pl-2">
@@ -75,17 +81,21 @@ const AlertHeader = ({ alertSummary, repos }) => {
             </DropdownItem>
           </DropdownMenu>
         </UncontrolledDropdown>
-        {alertSummary.bug_number && (
+        {bugNumber && (
           <span>
             <span className="align-middle"> · </span>
-            {/* <a
-              className="text-info align-middle"
-              href={getIssueTrackerUrl(alertSummary)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {`Bug ${alertSummary.bug_number}`}
-            </a> */}
+            {alertSummary.issue_tracker && issueTrackers.length > 0 ? (
+              <a
+                className="text-info align-middle"
+                href={getIssueTrackerUrl(alertSummary)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {bugNumber}
+              </a>
+            ) : (
+              { bugNumber }
+            )}
           </span>
         )}
       </span>
@@ -95,7 +105,12 @@ const AlertHeader = ({ alertSummary, repos }) => {
 
 AlertHeader.propTypes = {
   alertSummary: PropTypes.shape({}).isRequired,
-  repos: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  repoModel: PropTypes.shape({}).isRequired,
+  issueTrackers: PropTypes.arrayOf(PropTypes.shape({})),
+};
+
+AlertHeader.defaultProps = {
+  issueTrackers: [],
 };
 
 export default AlertHeader;

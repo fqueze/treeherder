@@ -4,7 +4,7 @@ import { Container } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 
-import { getData } from '../helpers/http';
+import { getData, processResponse } from '../helpers/http';
 import { getApiUrl, repoEndpoint } from '../helpers/url';
 import PushModel from '../models/push';
 import ErrorMessages from '../shared/ErrorMessages';
@@ -55,21 +55,13 @@ const withValidation = (
       ]);
 
       const updates = {
-        ...this.processResponse(projects, 'projects'),
-        ...this.processResponse(frameworks, 'frameworks'),
+        ...processResponse(projects, 'projects'),
+        ...processResponse(frameworks, 'frameworks'),
       };
       this.setState(updates, () =>
         this.validateParams(this.props.$stateParams),
       );
     }
-
-    processResponse = (response, state) => {
-      const { data, failureStatus } = response;
-      if (failureStatus) {
-        return { errorMessages: [...this.state.errorMessages, ...data] };
-      }
-      return { [state]: data };
-    };
 
     updateParams = param => {
       const { transitionTo, current } = this.props.$state;
