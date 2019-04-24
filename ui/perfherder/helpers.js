@@ -420,7 +420,7 @@ export const alertIsOfState = (alert, phAlertStatus) =>
 
 let issueTrackers; // will cache on first AlertSummary call
 
-const getInitializedAlerts = (alertSummary, optionCollectionMap) =>
+export const getInitializedAlerts = (alertSummary, optionCollectionMap) =>
   // this function converts the representation returned by the perfherder
   // api into a representation more suited for display in the UI
 
@@ -430,6 +430,7 @@ const getInitializedAlerts = (alertSummary, optionCollectionMap) =>
     .concat(alertSummary.related_alerts)
     .map(alertData => Alert(alertData, optionCollectionMap));
 
+// TODO remove
 const constructAlertSummary = (
   alertSummaryData,
   optionCollectionMap,
@@ -444,6 +445,7 @@ const constructAlertSummary = (
   return alertSummaryState;
 };
 
+// TODO remove usage
 export const AlertSummary = async (alertSummaryData, optionCollectionMap) => {
   if (issueTrackers === undefined) {
     return getData(getApiUrl(endpoints.issueTrackers)).then(
@@ -543,7 +545,7 @@ export const getTextualSummary = (alertSummary, copySummary) => {
   return resultStr;
 };
 
-// TODO replace usage of getData on line 560 since modifyAlert/update now returns data
+// TODO remove
 export const refreshAlertSummary = alertSummary =>
   getData(getApiUrl(`${endpoints.alertSummary}${alertSummary.id}/`)).then(
     ({ data }) =>

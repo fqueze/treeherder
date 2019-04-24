@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Container, Form, FormGroup, Label, Input, Table } from 'reactstrap';
+import orderBy from 'lodash/orderBy';
 
 import {
   phAlertStatusMap,
@@ -8,29 +9,59 @@ import {
   phTimeRanges,
 } from '../../helpers/constants';
 import RepositoryModel from '../../models/repository';
+import { getInitializedAlerts } from '../helpers';
 
 import AlertHeader from './AlertHeader';
 import StatusDropdown from './StatusDropdown';
 import AlertTableRow from './AlertTableRow';
 import DownstreamSummary from './DownstreamSummary';
 
+// TODO
+// * if there are no alerts after filtering, that alertSummaryTable should not be shown
+// and it shouldn't be shown if there aren't actually any alerts
+
 export default class AlertTable extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      alertSummary: this.props.alertSummary,
+      alertSummary: null,
       downstreamIds: [],
       showMoreNotes: false,
+      filteredAlerts: [],
     };
   }
 
-  // TODO call getInitializedAlerts(alert, optionCollectionMap) to create title on each alert
   componentDidMount() {
-    this.getDownstreamList();
+    this.processAlerts();
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.filters !== this.props.filters) {
+      this.updateFilteredAlerts();
+    }
+    if (prevProps.alertSummary !== this.props.alertSummary) {
+      this.processAlerts();
+    }
+  }
+
+  processAlerts = () => {
+    const { alertSummary, optionCollectionMap } = this.props;
+
+    const alerts = getInitializedAlerts(alertSummary, optionCollectionMap);
+    alertSummary.alerts = orderBy(
+      alerts,
+      ['starred', 'title'],
+      ['desc', 'desc'],
+    );
+
+    this.setState({ alertSummary }, () => {
+      this.getDownstreamList();
+      this.updateFilteredAlerts();
+    });
+  };
+
   getDownstreamList = () => {
-    const { alertSummary } = this.props;
+    const { alertSummary } = this.state;
 
     const downstreamIds = [
       ...new Set(
@@ -64,7 +95,7 @@ export default class AlertTable extends React.Component {
 
   // TODO move to alertTableRow
   getTimeRange = () => {
-    const { alertSummary } = this.props;
+    const { alertSummary } = this.state;
 
     const defaultTimeRange =
       alertSummary.repository === 'mozilla-beta'
@@ -82,59 +113,102 @@ export default class AlertTable extends React.Component {
     return timeRange;
   };
 
+  filterAlert = alert => {
+    const { hideImprovements, hideDownstream, filterText } = this.props.filters;
+    const { alertSummary } = this.state;
+
+    const matchesFilters =
+      (!hideImprovements || alert.is_regression) &&
+      (alert.summary_id === alertSummary.id ||
+        alert.status !== phAlertStatusMap.DOWNSTREAM.id) &&
+      !(
+        hideDownstream &&
+        alert.status === phAlertStatusMap.REASSIGNED.id &&
+        alert.related_summary_id !== alertSummary.id
+      ) &&
+      !(hideDownstream && alert.status === phAlertStatusMap.DOWNSTREAM.id) &&
+      !(hideDownstream && alert.status === phAlertStatusMap.INVALID.id);
+
+    if (!filterText) return matchesFilters;
+
+    const words = filterText
+      .split(' ')
+      .map(word => `(?=.*${word})`)
+      .join('');
+    const regex = RegExp(words, 'gi');
+    const text = `${alert.title} ${alertSummary.bug_number &&
+      alertSummary.bug_number.toString()} ${alertSummary.revision.toString()}`;
+
+    // searching with filter input and one or more metricFilter buttons on
+    // will produce different results compared to when all filters are off
+    return regex.test(text) && matchesFilters;
+  };
+
+  updateFilteredAlerts = () => {
+    const { alertSummary } = this.state;
+    const filteredAlerts = alertSummary.alerts.filter(alert =>
+      this.filterAlert(alert),
+    );
+    this.setState({ filteredAlerts });
+  };
+
   render() {
     const { user, validated, alertSummaries, issueTrackers } = this.props;
-    const { alertSummary, downstreamIds, showMoreNotes } = this.state;
+    const {
+      alertSummary,
+      downstreamIds,
+      showMoreNotes,
+      filteredAlerts,
+    } = this.state;
 
     const downstreamIdsLength = downstreamIds.length;
-    const repo = validated.projects.find(
-      repo => repo.name === alertSummary.repository,
-    );
+    const repo = alertSummary
+      ? validated.projects.find(repo => repo.name === alertSummary.repository)
+      : null;
     const repoModel = new RepositoryModel(repo);
 
     return (
       <Container fluid className="px-0 max-width-default">
         <Form>
-          <Table className="compare-table">
-            <thead>
-              <tr className="bg-lightgray">
-                <th
-                  colSpan="8"
-                  className="text-left alert-summary-header-element"
-                >
-                  <FormGroup check>
-                    <Label check className="pl-1">
-                      <Input
-                        type="checkbox"
-                        disabled={!user.isStaff}
-                        onClick={this.selectAlerts}
-                      />
-                      <AlertHeader
-                        alertSummary={alertSummary}
-                        repoModel={repoModel}
-                        issueTrackers={issueTrackers}
-                      />
-                    </Label>
-                  </FormGroup>
-                </th>
-                <th className="table-width-sm align-top font-weight-normal">
-                  <StatusDropdown
-                    alertSummary={alertSummary}
-                    user={user}
-                    updateState={alertSummary =>
-                      this.setState({ alertSummary })
-                    }
-                    repoModel={repoModel}
-                    issueTrackers={issueTrackers}
-                  />
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {/* // TODO orderBy: ['-starred', 'title'] */}
-              {alertSummary.alerts.map(
-                alert =>
-                  alert.visible && (
+          {alertSummary && (
+            <Table className="compare-table">
+              <thead>
+                <tr className="bg-lightgray border">
+                  <th
+                    colSpan="8"
+                    className="text-left alert-summary-header-element"
+                  >
+                    <FormGroup check>
+                      <Label check className="pl-1">
+                        <Input
+                          type="checkbox"
+                          disabled={!user.isStaff}
+                          onClick={this.selectAlerts}
+                        />
+                        <AlertHeader
+                          alertSummary={alertSummary}
+                          repoModel={repoModel}
+                          issueTrackers={issueTrackers}
+                        />
+                      </Label>
+                    </FormGroup>
+                  </th>
+                  <th className="table-width-sm align-top font-weight-normal">
+                    <StatusDropdown
+                      alertSummary={alertSummary}
+                      user={user}
+                      updateState={alertSummary =>
+                        this.setState({ alertSummary })
+                      }
+                      repoModel={repoModel}
+                      issueTrackers={issueTrackers}
+                    />
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAlerts.length > 0 &&
+                  filteredAlerts.map(alert => (
                     <AlertTableRow
                       key={alert.id}
                       alertSummary={alertSummary}
@@ -142,49 +216,51 @@ export default class AlertTable extends React.Component {
                       user={user}
                       timeRange={this.getTimeRange()}
                     />
-                  ),
-              )}
-              {downstreamIdsLength > 0 && (
-                <tr>
-                  <td colSpan="9" className="text-left text-muted pl-3 py-4">
-                    <span>Downstream alert summaries: </span>
-                    {downstreamIds.map((id, index) => (
-                      <DownstreamSummary
-                        key={id}
-                        id={id}
-                        alertSummaries={alertSummaries}
-                        position={downstreamIdsLength - 1 - index}
-                      />
-                    ))}
-                  </td>
-                </tr>
-              )}
-              {alertSummary.notes && (
-                <tr className="border">
-                  <td colSpan="9" className="text-left text-muted  pl-3 py-4">
-                    <p
-                      className={`max-width-row-text ${
-                        showMoreNotes ? '' : 'text-truncate'
-                      }`}
-                    >
-                      <span className="font-weight-bold">Notes </span>
-                      {alertSummary.notes}
-                    </p>
-                    {alertSummary.notes.length > 168 && (
+                  ))}
+                {downstreamIdsLength > 0 && (
+                  <tr className="border">
+                    <td colSpan="9" className="text-left text-muted pl-3 py-4">
+                      <span className="font-weight-bold">
+                        Downstream alert summaries:{' '}
+                      </span>
+                      {downstreamIds.map((id, index) => (
+                        <DownstreamSummary
+                          key={id}
+                          id={id}
+                          alertSummaries={alertSummaries}
+                          position={downstreamIdsLength - 1 - index}
+                        />
+                      ))}
+                    </td>
+                  </tr>
+                )}
+                {alertSummary.notes && (
+                  <tr className="border">
+                    <td colSpan="9" className="text-left text-muted  pl-3 py-4">
                       <p
-                        className="mb-0 text-right font-weight-bold text-info pointer"
-                        onClick={() =>
-                          this.setState({ showMoreNotes: !showMoreNotes })
-                        }
+                        className={`max-width-row-text ${
+                          showMoreNotes ? '' : 'text-truncate'
+                        }`}
                       >
-                        {`show ${showMoreNotes ? 'less' : 'more'}`}
+                        <span className="font-weight-bold">Notes: </span>
+                        {alertSummary.notes}
                       </p>
-                    )}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </Table>
+                      {alertSummary.notes.length > 167 && (
+                        <p
+                          className="mb-0 text-right text-info pointer"
+                          onClick={() =>
+                            this.setState({ showMoreNotes: !showMoreNotes })
+                          }
+                        >
+                          {`show ${showMoreNotes ? 'less' : 'more'}`}
+                        </p>
+                      )}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </Table>
+          )}
         </Form>
       </Container>
     );
@@ -199,6 +275,12 @@ AlertTable.propTypes = {
   }).isRequired,
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   issueTrackers: PropTypes.arrayOf(PropTypes.shape({})),
+  optionCollectionMap: PropTypes.shape({}).isRequired,
+  filters: PropTypes.shape({
+    filterText: PropTypes.string,
+    hideDownstream: PropTypes.bool,
+    hideImprovements: PropTypes.bool,
+  }).isRequired,
 };
 
 AlertTable.defaultProps = {

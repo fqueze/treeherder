@@ -126,6 +126,7 @@ export class AlertsView extends React.Component {
       loading,
       alertSummaries,
       issueTrackers,
+      optionCollectionMap,
     } = this.state;
     const { frameworks } = validated;
 
@@ -146,7 +147,7 @@ export class AlertsView extends React.Component {
     ];
 
     return (
-      <Container fluid className="max-width-default">
+      <Container fluid className="pt-5 max-width-default">
         {loading && (
           <div className="loading">
             <FontAwesomeIcon
@@ -170,18 +171,25 @@ export class AlertsView extends React.Component {
             make changes
           </Alert>
         )}
-        <AlertsViewControls {...this.props} dropdownOptions={alertDropdowns} />
-        {alertSummaries.length > 0 &&
-          alertSummaries.map(alertSummary => (
-            <AlertTable
-              key={alertSummary.id}
-              alertSummary={alertSummary}
-              user={user}
-              alertSummaries={alertSummaries}
-              issueTrackers={issueTrackers}
-              {...this.props}
-            />
-          ))}
+        <AlertsViewControls
+          validated={validated}
+          dropdownOptions={alertDropdowns}
+          render={state =>
+            alertSummaries.length > 0 &&
+            alertSummaries.map(alertSummary => (
+              <AlertTable
+                filters={state}
+                key={alertSummary.id}
+                alertSummary={alertSummary}
+                user={user}
+                alertSummaries={alertSummaries}
+                issueTrackers={issueTrackers}
+                {...this.props}
+                optionCollectionMap={optionCollectionMap}
+              />
+            ))
+          }
+        />
       </Container>
     );
   }
