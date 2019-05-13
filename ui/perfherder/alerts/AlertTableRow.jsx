@@ -84,8 +84,11 @@ export default class AlertTableRow extends React.Component {
     if (alertStatus === 'untriaged') {
       statusColor = 'text-success';
     }
-    if (alertStatus === 'invalid' || (alert.related_summary_id && alert.related_summary_id !== id)) {
-      textEffect = 'strike-through'
+    if (
+      alertStatus === 'invalid' ||
+      (alert.related_summary_id && alert.related_summary_id !== id)
+    ) {
+      textEffect = 'strike-through';
     }
 
     return (

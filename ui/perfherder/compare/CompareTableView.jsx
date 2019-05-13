@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Col, Row, Container } from 'reactstrap';
+import { Alert, Col, Row, Container } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 
@@ -19,11 +19,11 @@ import {
   createQueryParams,
 } from '../../helpers/url';
 import { getFrameworkData } from '../helpers';
+import TruncatedText from '../../shared/TruncatedText';
 
 import RevisionInformation from './RevisionInformation';
 import CompareTableControls from './CompareTableControls';
 import NoiseTable from './NoiseTable';
-import ResultsAlert from './ResultsAlert';
 
 // TODO remove $stateParams and $state after switching to react router
 export default class CompareTableView extends React.Component {
@@ -260,7 +260,17 @@ export default class CompareTableView extends React.Component {
               )}
 
               {testsNoResults && (
-                <ResultsAlert testsNoResults={testsNoResults} />
+                <Row className="pt-5 justify-content-center">
+                  <Col small="12" className="px-0 max-width-default">
+                    <Alert color="warning">
+                      <TruncatedText
+                        title="Tests without results: "
+                        maxLength={174}
+                        text={testsNoResults}
+                      />
+                    </Alert>
+                  </Col>
+                </Row>
               )}
 
               <CompareTableControls

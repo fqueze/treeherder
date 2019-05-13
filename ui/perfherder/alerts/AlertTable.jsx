@@ -10,6 +10,7 @@ import {
 } from '../../helpers/constants';
 import RepositoryModel from '../../models/repository';
 import { getInitializedAlerts } from '../helpers';
+import TruncatedText from '../../shared/TruncatedText';
 
 import AlertHeader from './AlertHeader';
 import StatusDropdown from './StatusDropdown';
@@ -26,7 +27,6 @@ export default class AlertTable extends React.Component {
     this.state = {
       alertSummary: null,
       downstreamIds: [],
-      showMoreNotes: false,
       filteredAlerts: [],
     };
   }
@@ -154,12 +154,7 @@ export default class AlertTable extends React.Component {
 
   render() {
     const { user, validated, alertSummaries, issueTrackers } = this.props;
-    const {
-      alertSummary,
-      downstreamIds,
-      showMoreNotes,
-      filteredAlerts,
-    } = this.state;
+    const { alertSummary, downstreamIds, filteredAlerts } = this.state;
 
     const downstreamIdsLength = downstreamIds.length;
     const repo = alertSummary
@@ -169,46 +164,46 @@ export default class AlertTable extends React.Component {
 
     return (
       <Container fluid className="px-0 max-width-default">
-        {filteredAlerts.length > 0 &&
-        <Form>
-          {alertSummary && (
-            <Table className="compare-table">
-              <thead>
-                <tr className="bg-lightgray border">
-                  <th
-                    colSpan="8"
-                    className="text-left alert-summary-header-element"
-                  >
-                    <FormGroup check>
-                      <Label check className="pl-1">
-                        <Input
-                          type="checkbox"
-                          disabled={!user.isStaff}
-                          onClick={this.selectAlerts}
-                        />
-                        <AlertHeader
-                          alertSummary={alertSummary}
-                          repoModel={repoModel}
-                          issueTrackers={issueTrackers}
-                        />
-                      </Label>
-                    </FormGroup>
-                  </th>
-                  <th className="table-width-sm align-top font-weight-normal">
-                    <StatusDropdown
-                      alertSummary={alertSummary}
-                      user={user}
-                      updateState={alertSummary =>
-                        this.setState({ alertSummary })
-                      }
-                      repoModel={repoModel}
-                      issueTrackers={issueTrackers}
-                    />
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredAlerts.map(alert => (
+        {filteredAlerts.length > 0 && (
+          <Form>
+            {alertSummary && (
+              <Table className="compare-table">
+                <thead>
+                  <tr className="bg-lightgray border">
+                    <th
+                      colSpan="8"
+                      className="text-left alert-summary-header-element"
+                    >
+                      <FormGroup check>
+                        <Label check className="pl-1">
+                          <Input
+                            type="checkbox"
+                            disabled={!user.isStaff}
+                            onClick={this.selectAlerts}
+                          />
+                          <AlertHeader
+                            alertSummary={alertSummary}
+                            repoModel={repoModel}
+                            issueTrackers={issueTrackers}
+                          />
+                        </Label>
+                      </FormGroup>
+                    </th>
+                    <th className="table-width-sm align-top font-weight-normal">
+                      <StatusDropdown
+                        alertSummary={alertSummary}
+                        user={user}
+                        updateState={alertSummary =>
+                          this.setState({ alertSummary })
+                        }
+                        repoModel={repoModel}
+                        issueTrackers={issueTrackers}
+                      />
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAlerts.map(alert => (
                     <AlertTableRow
                       key={alert.id}
                       alertSummary={alertSummary}
@@ -217,51 +212,46 @@ export default class AlertTable extends React.Component {
                       timeRange={this.getTimeRange()}
                     />
                   ))}
-                {downstreamIdsLength > 0 && (
-                  <tr className="border">
-                    <td colSpan="9" className="text-left text-muted pl-3 py-4">
-                      <span className="font-weight-bold">
-                        Downstream alert summaries:{' '}
-                      </span>
-                      {downstreamIds.map((id, index) => (
-                        <DownstreamSummary
-                          key={id}
-                          id={id}
-                          alertSummaries={alertSummaries}
-                          position={downstreamIdsLength - 1 - index}
-                        />
-                      ))}
-                    </td>
-                  </tr>
-                )}
-                {alertSummary.notes && (
-                  <tr className="border">
-                    <td colSpan="9" className="text-left text-muted  pl-3 py-4">
-                      <p
-                        className={`max-width-row-text ${
-                          showMoreNotes ? '' : 'text-truncate'
-                        }`}
+                  {downstreamIdsLength > 0 && (
+                    <tr className="border">
+                      <td
+                        colSpan="9"
+                        className="text-left text-muted pl-3 py-4"
                       >
-                        <span className="font-weight-bold">Notes: </span>
-                        {alertSummary.notes}
-                      </p>
-                      {alertSummary.notes.length > 167 && (
-                        <p
-                          className="mb-0 text-right text-info pointer"
-                          onClick={() =>
-                            this.setState({ showMoreNotes: !showMoreNotes })
-                          }
-                        >
-                          {`show ${showMoreNotes ? 'less' : 'more'}`}
-                        </p>
-                      )}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </Table>
-          )}
-        </Form>}
+                        <span className="font-weight-bold">
+                          Downstream alert summaries:{' '}
+                        </span>
+                        {downstreamIds.map((id, index) => (
+                          <DownstreamSummary
+                            key={id}
+                            id={id}
+                            alertSummaries={alertSummaries}
+                            position={downstreamIdsLength - 1 - index}
+                          />
+                        ))}
+                      </td>
+                    </tr>
+                  )}
+                  {alertSummary.notes && (
+                    <tr className="border">
+                      <td
+                        colSpan="9"
+                        className="max-width-row-text text-left text-muted pl-3 py-4"
+                      >
+                        <TruncatedText
+                          title="Notes: "
+                          maxLength={167}
+                          text={alertSummary.notes}
+                          showMoreClass="text-info"
+                        />
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </Table>
+            )}
+          </Form>
+        )}
       </Container>
     );
   }
