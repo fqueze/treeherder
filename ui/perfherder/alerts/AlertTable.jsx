@@ -169,6 +169,7 @@ export default class AlertTable extends React.Component {
 
     return (
       <Container fluid className="px-0 max-width-default">
+        {filteredAlerts.length > 0 &&
         <Form>
           {alertSummary && (
             <Table className="compare-table">
@@ -207,8 +208,7 @@ export default class AlertTable extends React.Component {
                 </tr>
               </thead>
               <tbody>
-                {filteredAlerts.length > 0 &&
-                  filteredAlerts.map(alert => (
+                {filteredAlerts.map(alert => (
                     <AlertTableRow
                       key={alert.id}
                       alertSummary={alertSummary}
@@ -261,7 +261,7 @@ export default class AlertTable extends React.Component {
               </tbody>
             </Table>
           )}
-        </Form>
+        </Form>}
       </Container>
     );
   }
