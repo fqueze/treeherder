@@ -39,20 +39,13 @@ export class AlertsView extends React.Component {
       loading: false,
       optionCollectionMap: null,
       count: 0,
+      id: this.validated.id,
     };
   }
 
-  // TODO need to add alert validation to Validation component
-  // if ($stateParams.id) {
-  //   $scope.alertId = $stateParams.id;
-  //   getAlertSummary($stateParams.id).then(
-  //       function (data) {
-  //           addAlertSummaries([data], null);
-  //       });
   componentDidMount() {
     this.fetchAlertSummaries();
   }
-  // TODO send data to tableControls to filter summaries
 
   getDefaultStatus = () => {
     const { validated } = this.props;
@@ -68,7 +61,6 @@ export class AlertsView extends React.Component {
     const framework = frameworks.find(item => item.name === selection);
 
     updateParams({ framework: framework.id });
-    // TODO fetch new data
     this.setState({ framework }, () => this.fetchAlertSummaries());
   };
 
@@ -101,20 +93,26 @@ export class AlertsView extends React.Component {
   // TODO potentially pass as a prop for testing purposes
   async fetchAlertSummaries(page = this.state.page) {
     this.setState({ loading: true });
+
     const {
       framework,
       status,
       errorMessages,
       issueTrackers,
       optionCollectionMap,
+      id,
     } = this.state;
+
     let updates = { loading: false };
+    const params = {
+      framework: framework.id,
+      status: alertSummaryStatus[status],
+      page,
+    };
+    if (id) params.id = id;
+
     const url = getApiUrl(
-      `${endpoints.alertSummary}${createQueryParams({
-        framework: framework.id,
-        status: alertSummaryStatus[status],
-        page,
-      })}`,
+      `${endpoints.alertSummary}${createQueryParams(params)}`,
     );
 
     // TODO OptionCollectionModel to use getData wrapper
