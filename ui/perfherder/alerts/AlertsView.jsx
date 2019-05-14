@@ -106,10 +106,14 @@ export class AlertsView extends React.Component {
     let updates = { loading: false };
     const params = {
       framework: framework.id,
-      status: alertSummaryStatus[status],
       page,
     };
+
     if (id) params.id = id;
+    if (alertSummaryStatus[status] !== -1) {
+      // -1 ('all') is created for UI purposes but is not a valid API parameter
+      params.status = alertSummaryStatus[status]; 
+    }
 
     const url = getApiUrl(
       `${endpoints.alertSummary}${createQueryParams(params)}`,
