@@ -21,19 +21,19 @@ export default class AlertTableControls extends React.Component {
     const { selectedAlerts } = this.props;
 
     return (
-      <React.Fragment>
-        {this.anyUntriaged() && (
-          <SimpleTooltip
-            text={
-              <Button color="warning" onClick={() => {}}>
-                {' '}
-                Reset
-              </Button>
-            }
-            tooltipText="Reset selected alerts to untriaged"
-          />
-        )}
-      </React.Fragment>
+      <div className="bg-lightgray px-3 py-4">
+        {/* {this.anyUntriaged() && ( */}
+        <SimpleTooltip
+          text={
+            <Button color="warning" onClick={() => {}}>
+              {' '}
+              Reset
+            </Button>
+          }
+          tooltipText="Reset selected alerts to untriaged"
+        />
+        {/* )} */}
+      </div>
     );
   }
 }

@@ -170,111 +170,105 @@ export default class AlertTable extends React.Component {
 
     return (
       <Container fluid className="px-0 max-width-default">
-        {filteredAlerts.length > 0 && (
+        {filteredAlerts.length > 0 && alertSummary && (
           <Form>
-            {alertSummary && (
-              <Table className="compare-table">
-                <thead>
-                  <tr className="bg-lightgray border">
-                    <th
-                      colSpan="8"
-                      className="text-left alert-summary-header-element"
-                    >
-                      <FormGroup check>
-                        <Label check className="pl-1">
-                          <Input
-                            type="checkbox"
-                            disabled={!user.isStaff}
-                            onClick={() =>
-                              this.setState({ allSelected: !allSelected })
-                            }
-                          />
-                          <AlertHeader
-                            alertSummary={alertSummary}
-                            repoModel={repoModel}
-                            issueTrackers={issueTrackers}
-                          />
-                        </Label>
-                      </FormGroup>
-                    </th>
-                    <th className="table-width-sm align-top font-weight-normal">
-                      <StatusDropdown
-                        alertSummary={alertSummary}
-                        user={user}
-                        updateState={alertSummary =>
-                          this.setState({ alertSummary })
-                        }
-                        repoModel={repoModel}
-                        issueTrackers={issueTrackers}
-                      />
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredAlerts.map(alert => (
-                    <AlertTableRow
-                      key={alert.id}
-                      alertSummary={alertSummary}
-                      alert={alert}
-                      user={user}
-                      timeRange={this.getTimeRange()}
-                      allSelected={allSelected}
-                      updateSelectedAlerts={alerts => this.setState(alerts)}
-                      selectedAlerts={selectedAlerts}
-                    />
-                  ))}
-                  {downstreamIdsLength > 0 && (
-                    <tr className="border">
-                      <td
-                        colSpan="9"
-                        className="text-left text-muted pl-3 py-4"
-                      >
-                        <span className="font-weight-bold">
-                          Downstream alert summaries:{' '}
-                        </span>
-                        {downstreamIds.map((id, index) => (
-                          <DownstreamSummary
-                            key={id}
-                            id={id}
-                            alertSummaries={alertSummaries}
-                            position={downstreamIdsLength - 1 - index}
-                          />
-                        ))}
-                      </td>
-                    </tr>
-                  )}
-                  {alertSummary.notes && (
-                    <tr className="border">
-                      <td
-                        colSpan="9"
-                        className="max-width-row-text text-left text-muted pl-3 py-4"
-                      >
-                        <TruncatedText
-                          title="Notes: "
-                          maxLength={167}
-                          text={alertSummary.notes}
-                          showMoreClass="text-info"
-                        />
-                      </td>
-                    </tr>
-                  )}
-                  {/* add "card-body button-panel" class to tr? */}
-                  {(allSelected || selectedAlerts.length > 0) && (
-                    <tr className="border">
-                      <td
-                        colSpan="9"
-                        className="max-width-row-text text-left text-muted pl-3 py-4"
-                      >
-                        <AlertTableControls
-                          selectedAlerts={
-                            allSelected ? alertSummary.alerts : selectedAlerts
+            <Table className="compare-table mb-0">
+              <thead>
+                <tr className="bg-lightgray border">
+                  <th
+                    colSpan="8"
+                    className="text-left alert-summary-header-element"
+                  >
+                    <FormGroup check>
+                      <Label check className="pl-1">
+                        <Input
+                          type="checkbox"
+                          disabled={!user.isStaff}
+                          onClick={() =>
+                            this.setState({ allSelected: !allSelected })
                           }
                         />
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </Table>
+                        <AlertHeader
+                          alertSummary={alertSummary}
+                          repoModel={repoModel}
+                          issueTrackers={issueTrackers}
+                        />
+                      </Label>
+                    </FormGroup>
+                  </th>
+                  <th className="table-width-sm align-top font-weight-normal">
+                    <StatusDropdown
+                      alertSummary={alertSummary}
+                      user={user}
+                      updateState={alertSummary =>
+                        this.setState({ alertSummary })
+                      }
+                      repoModel={repoModel}
+                      issueTrackers={issueTrackers}
+                    />
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAlerts.map(alert => (
+                  <AlertTableRow
+                    key={alert.id}
+                    alertSummary={alertSummary}
+                    alert={alert}
+                    user={user}
+                    timeRange={this.getTimeRange()}
+                    allSelected={allSelected}
+                    updateSelectedAlerts={alerts => this.setState(alerts)}
+                    selectedAlerts={selectedAlerts}
+                  />
+                ))}
+                {downstreamIdsLength > 0 && (
+                  <tr
+                    className={`${
+                      alertSummary.notes
+                        ? 'border-top border-left border-right'
+                        : 'border'
+                    }`}
+                  >
+                    <td colSpan="9" className="text-left text-muted pl-3 py-4">
+                      <span className="font-weight-bold">
+                        Downstream alert summaries:{' '}
+                      </span>
+                      {downstreamIds.map((id, index) => (
+                        <DownstreamSummary
+                          key={id}
+                          id={id}
+                          alertSummaries={alertSummaries}
+                          position={downstreamIdsLength - 1 - index}
+                        />
+                      ))}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </Table>
+            {(alertSummary.notes ||
+              allSelected ||
+              selectedAlerts.length > 0) && (
+              <div className="border mb-4 button-panel max-width-default text-left text-muted p-0">
+                {alertSummary.notes && (
+                  <div className="bg-white px-3 py-4">
+                    <TruncatedText
+                      title="Notes: "
+                      maxLength={167}
+                      text={alertSummary.notes}
+                      showMoreClass="text-info"
+                    />
+                  </div>
+                )}
+                {(allSelected || selectedAlerts.length > 0) && (
+                  <AlertTableControls
+                    selectedAlerts={
+                      allSelected ? alertSummary.alerts : selectedAlerts
+                    }
+                  />
+                )}
+              </div>
             )}
           </Form>
         )}
