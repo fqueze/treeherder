@@ -247,10 +247,8 @@ export default class AlertTable extends React.Component {
                 )}
               </tbody>
             </Table>
-            {(alertSummary.notes ||
-              allSelected ||
-              selectedAlerts.length > 0) && (
-              <div className="border mb-4 button-panel max-width-default text-left text-muted p-0">
+            {alertSummary.notes || allSelected || selectedAlerts.length > 0 ? (
+              <div className="border mb-4 sticky-footer max-width-default text-left text-muted p-0">
                 {alertSummary.notes && (
                   <div className="bg-white px-3 py-4">
                     <TruncatedText
@@ -269,6 +267,8 @@ export default class AlertTable extends React.Component {
                   />
                 )}
               </div>
+            ) : (
+              <br />
             )}
           </Form>
         )}

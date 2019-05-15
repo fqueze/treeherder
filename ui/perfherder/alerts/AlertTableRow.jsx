@@ -157,7 +157,7 @@ export default class AlertTableRow extends React.Component {
   };
 
   render() {
-    const { user, alert } = this.props;
+    const { user, alert, alertSummary } = this.props;
     const { starred, checkboxSelected } = this.state;
 
     const alertStatus = getStatus(alert.status);
@@ -168,7 +168,11 @@ export default class AlertTableRow extends React.Component {
     const numberFormat = new Intl.NumberFormat();
 
     return (
-      <tr className="justify-center border">
+      <tr
+        className={
+          alertSummary.notes ? 'border-top border-left border-right' : 'border'
+        }
+      >
         <td className="px-1">
           <FormGroup check>
             {/* TODO aria label */}
