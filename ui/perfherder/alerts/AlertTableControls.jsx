@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container, Button } from 'reactstrap';
+import { Button } from 'reactstrap';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import alertStatus from '../constants';
@@ -19,25 +19,25 @@ export default class AlertTableControls extends React.Component {
 
   render() {
     const { selectedAlerts } = this.props;
-    // className="card-body button-panel"
+    console.log(selectedAlerts);
     return (
       <React.Fragment>
-        {selectedAlerts.some(alert => alert.status === alertStatus.untriaged) && (
-          <SimpleTooltip
-            text={
-              <Button color="warning" onClick={() => {}}>
-                {' '}
-                Reset
-              </Button>
-            }
-            tooltipText="Reset selected alerts to untriaged"
-          />
-        )}
+        {/* {selectedAlerts.some(alert => alert.status === alertStatus.untriaged) && ( */}
+        <SimpleTooltip
+          text={
+            <Button color="warning" onClick={() => {}}>
+              {' '}
+              Reset
+            </Button>
+          }
+          tooltipText="Reset selected alerts to untriaged"
+        />
+        {/* )} */}
       </React.Fragment>
     );
   }
 }
 
 AlertTableControls.propTypes = {
-  selectedAlerts: PropTypes.arrayOf(PropTypes.string).isRequired,
+  selectedAlerts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };

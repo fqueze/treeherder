@@ -25,7 +25,7 @@ export default class AlertTable extends React.Component {
       alertSummary: null,
       downstreamIds: [],
       filteredAlerts: [],
-      selectAlertSummary: false,
+      allSelected: false,
       selectedAlerts: [],
     };
   }
@@ -158,7 +158,7 @@ export default class AlertTable extends React.Component {
       alertSummary,
       downstreamIds,
       filteredAlerts,
-      selectAlertSummary,
+      allSelected,
       selectedAlerts,
     } = this.state;
 
@@ -185,7 +185,9 @@ export default class AlertTable extends React.Component {
                           <Input
                             type="checkbox"
                             disabled={!user.isStaff}
-                            onClick={() => this.setState({ selectAlertSummary: !selectAlertSummary })}
+                            onClick={() =>
+                              this.setState({ allSelected: !allSelected })
+                            }
                           />
                           <AlertHeader
                             alertSummary={alertSummary}
@@ -216,6 +218,9 @@ export default class AlertTable extends React.Component {
                       alert={alert}
                       user={user}
                       timeRange={this.getTimeRange()}
+                      allSelected={allSelected}
+                      updateSelectedAlerts={alerts => this.setState(alerts)}
+                      selectedAlerts={selectedAlerts}
                     />
                   ))}
                   {downstreamIdsLength > 0 && (
@@ -254,13 +259,17 @@ export default class AlertTable extends React.Component {
                     </tr>
                   )}
                   {/* add "card-body button-panel" class to tr? */}
-                  {(selectAlertSummary || selectedAlerts.length > 0) && (
+                  {(allSelected || selectedAlerts.length > 0) && (
                     <tr className="border">
                       <td
                         colSpan="9"
                         className="max-width-row-text text-left text-muted pl-3 py-4"
                       >
-                        <AlertTableControls selectedAlerts={selectedAlerts} />
+                        <AlertTableControls
+                          selectedAlerts={
+                            allSelected ? alertSummary.alerts : selectedAlerts
+                          }
+                        />
                       </td>
                     </tr>
                   )}

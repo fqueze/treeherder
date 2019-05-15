@@ -22,22 +22,16 @@ export default class AlertTableRow extends React.Component {
     this.state = {
       alert: this.props.alert,
       starred: this.props.alert.starred,
+      checkboxSelected: false,
     };
   }
 
-  // TODO figure out how to structure this - alert.selected needs to be updated
-  // do we need to use alert.visible as per updateAlertVisibility in controller?
-  selectAlert = () => {
-    const { alertSummary: oldAlertSummary } = this.props;
-    const alertSummary = { ...oldAlertSummary };
-
-    if (alertSummary.alerts.every(alert => !alert.visible || alert.selected)) {
-      alertSummary.allSelected = true;
-    } else {
-      alertSummary.allSelected = false;
+  componentDidUpdate(prevProps) {
+    if (prevProps.allSelected !== this.props.allSelected) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ checkboxSelected: this.props.allSelected });
     }
-    // this.props.$rootScope.$apply();
-  };
+  }
 
   // TODO error handling
   modifyAlert = (alert, modification) =>
@@ -71,6 +65,24 @@ export default class AlertTableRow extends React.Component {
         >{`alert #${alertId}`}</a>
       </span>
     );
+  };
+
+  updateCheckbox = () => {
+    const { alert, updateSelectedAlerts, selectedAlerts } = this.props;
+    const { checkboxSelected } = this.state;
+
+    const index = selectedAlerts.indexOf(alert);
+
+    if (checkboxSelected && index === -1) {
+      return updateSelectedAlerts({
+        selectedAlerts: [...selectedAlerts, alert],
+      });
+    }
+
+    if (index !== -1) {
+      selectedAlerts.splice(index, 1);
+      return updateSelectedAlerts({ selectedAlerts });
+    }
   };
 
   getTitleText = (alert, alertStatus) => {
@@ -146,7 +158,7 @@ export default class AlertTableRow extends React.Component {
 
   render() {
     const { user, alert } = this.props;
-    const { starred } = this.state;
+    const { starred, checkboxSelected } = this.state;
 
     const alertStatus = getStatus(alert.status);
     const tooltipText = alert.classifier_email
@@ -163,7 +175,13 @@ export default class AlertTableRow extends React.Component {
             <Input
               type="checkbox"
               disabled={!user.isStaff}
-              // onClick={() => console.log('selected')}
+              checked={checkboxSelected}
+              onChange={() =>
+                this.setState(
+                  { checkboxSelected: !checkboxSelected },
+                  this.updateCheckbox,
+                )
+              }
             />
           </FormGroup>
         </td>
@@ -249,6 +267,9 @@ AlertTableRow.propTypes = {
     starred: PropTypes.bool,
   }).isRequired,
   timeRange: PropTypes.number.isRequired,
+  updateSelectedAlerts: PropTypes.func.isRequired,
+  selectedAlerts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  allSelected: PropTypes.bool.isRequired,
 };
 
 AlertTableRow.defaultProps = {
