@@ -261,6 +261,9 @@ export class AlertsView extends React.Component {
             </Pagination>
           </Row>
         )}
+        {!loading && alertSummaries.length === 0 && (
+          <p className="text-muted text-center">No alerts found</p>
+        )}
       </Container>
     );
   }

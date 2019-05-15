@@ -173,9 +173,9 @@ export default class AlertTableRow extends React.Component {
           alertSummary.notes ? 'border-top border-left border-right' : 'border'
         }
       >
-        <td className="px-1">
-          <FormGroup check>
-            {/* TODO aria label */}
+        <td className="table-width-xs px-1">
+          {/* TODO aria label */}
+          <FormGroup check className="ml-2 pl-4">
             <Input
               type="checkbox"
               disabled={!user.isStaff}
