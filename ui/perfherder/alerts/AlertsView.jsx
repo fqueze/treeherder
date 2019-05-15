@@ -92,7 +92,7 @@ export class AlertsView extends React.Component {
 
   // TODO potentially pass as a prop for testing purposes
   async fetchAlertSummaries(page = this.state.page) {
-    this.setState({ loading: true });
+    this.setState({ loading: true, errorMessages: [] });
 
     const {
       framework,
@@ -197,7 +197,7 @@ export class AlertsView extends React.Component {
         )}
 
         {errorMessages.length > 0 && (
-          <Container className="pt-5 max-width-default">
+          <Container className="pt-5 px-0 max-width-default">
             <ErrorMessages errorMessages={errorMessages} />
           </Container>
         )}
