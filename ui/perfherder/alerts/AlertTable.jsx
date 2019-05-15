@@ -16,7 +16,7 @@ import AlertHeader from './AlertHeader';
 import StatusDropdown from './StatusDropdown';
 import AlertTableRow from './AlertTableRow';
 import DownstreamSummary from './DownstreamSummary';
-import AlertTableControls from './AlertTableControls';
+import AlertActionPanel from './AlertActionPanel';
 
 export default class AlertTable extends React.Component {
   constructor(props) {
@@ -260,7 +260,7 @@ export default class AlertTable extends React.Component {
                   </div>
                 )}
                 {(allSelected || selectedAlerts.length > 0) && (
-                  <AlertTableControls
+                  <AlertActionPanel
                     selectedAlerts={
                       allSelected ? alertSummary.alerts : selectedAlerts
                     }

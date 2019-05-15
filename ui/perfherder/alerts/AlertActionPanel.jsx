@@ -5,7 +5,7 @@ import { Button } from 'reactstrap';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { alertStatus } from '../constants';
 
-export default class AlertTableControls extends React.Component {
+export default class AlertActionPanel extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -38,6 +38,6 @@ export default class AlertTableControls extends React.Component {
   }
 }
 
-AlertTableControls.propTypes = {
+AlertActionPanel.propTypes = {
   selectedAlerts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
