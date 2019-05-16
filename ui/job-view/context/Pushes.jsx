@@ -20,6 +20,7 @@ import {
 } from '../../helpers/location';
 import { isUnclassifiedFailure } from '../../helpers/job';
 import PushModel from '../../models/push';
+import JobModel from '../../models/job';
 import { reloadOnChangeParameters } from '../../helpers/filter';
 import { withNotifications } from '../../shared/context/Notifications';
 
