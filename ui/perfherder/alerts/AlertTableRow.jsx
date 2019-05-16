@@ -8,10 +8,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 
-import { update } from '../../helpers/http';
-import { getApiUrl, createQueryParams } from '../../helpers/url';
-import { endpoints } from '../constants';
-import { getStatus, getGraphsURL } from '../helpers';
+import { createQueryParams } from '../../helpers/url';
+import { getStatus, getGraphsURL, modifyAlert } from '../helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import ProgressBar from '../ProgressBar';
 
@@ -23,6 +21,7 @@ export default class AlertTableRow extends React.Component {
       alert: this.props.alert,
       starred: this.props.alert.starred,
       checkboxSelected: false,
+      status: this.props.alert.status,
     };
   }
 
@@ -33,16 +32,12 @@ export default class AlertTableRow extends React.Component {
     }
   }
 
-  // TODO error handling
-  modifyAlert = (alert, modification) =>
-    update(getApiUrl(`${endpoints.alert}${alert.id}/`), modification);
-
   toggleStar = async () => {
     const { starred, alert } = this.state;
     const updatedStar = {
       starred: !starred,
     };
-    await this.modifyAlert(alert, updatedStar);
+    await modifyAlert(alert, updatedStar);
     this.setState(updatedStar);
   };
 

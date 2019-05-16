@@ -412,8 +412,10 @@ export const getSubtestsURL = (alert, alertSummary) => {
   return `#/comparesubtest${createQueryParams(urlParameters)}`;
 };
 
-const modifyAlert = (alert, modification) =>
-  update(getApiUrl(`/performance/alert/${alert.id}/`), modification);
+// TODO error handling
+export const modifyAlert = (alert, modification) =>
+  update(getApiUrl(`${endpoints.alert}${alert.id}/`), modification);
+
 // TODO remove
 export const alertIsOfState = (alert, phAlertStatus) =>
   alert.status === phAlertStatus.id;
@@ -603,7 +605,7 @@ export const getTitle = alertSummary => {
   title += ` (${platformInfo})`;
   return title;
 };
-
+// TODO remove
 export const modifySelectedAlerts = (alertSummary, modification) => {
   alertSummary.allSelected = false;
 

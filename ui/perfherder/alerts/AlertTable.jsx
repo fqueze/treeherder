@@ -264,6 +264,8 @@ export default class AlertTable extends React.Component {
                     selectedAlerts={
                       allSelected ? alertSummary.alerts : selectedAlerts
                     }
+                    alertSummaries={alertSummaries}
+                    alertSummary={alertSummary}
                   />
                 )}
               </div>
