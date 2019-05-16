@@ -11,9 +11,35 @@ export default class AlertActionPanel extends React.Component {
     this.state = {};
   }
 
-  anyUntriaged = () =>
+  // resetAlerts = () => {
+  //   // We need to update not only the summary when resetting the alert,
+  //   // but other summaries affected by the change
+  //   const { alertSummaries, alertSummary } = this.props;
+  //   // TODO this seems a little convoluted since it's doing the same thing in modifySelectedUpdates
+  //   const selectedAlerts = alertSummary.alerts
+  //     .filter(alert => alert.selected)
+  //     .map(alert =>
+  //       alertSummaries.find(
+  //         alertSummary => alertSummary.id === alert.related_summary_id,
+  //       ),
+  //     )
+  //     .filter(alertSummary => alertSummary !== undefined);
+
+  //   const summariesToUpdate = [...[alertSummary], ...selectedAlerts];
+
+  //   modifySelectedAlerts(alertSummary, {
+  //     status: phAlertStatusMap.UNTRIAGED.id,
+  //     related_summary_id: null,
+  //   }).then(() =>
+  //     summariesToUpdate.forEach(alertSummary =>
+  //       this.updateAlertSummary(alertSummary),
+  //     ),
+  //   );
+  // };
+
+  hasTriagedAlerts = () =>
     this.props.selectedAlerts.some(
-      alert => alert.status === alertStatus.untriaged,
+      alert => alert.status !== alertStatus.untriaged,
     );
 
   // TODO add reset onclick functionality
@@ -22,7 +48,7 @@ export default class AlertActionPanel extends React.Component {
 
     return (
       <div className="bg-lightgray px-3 py-4">
-        {/* {this.anyUntriaged() && ( */}
+        {this.hasTriagedAlerts() && (
         <SimpleTooltip
           text={
             <Button color="warning" onClick={() => {}}>
@@ -32,7 +58,7 @@ export default class AlertActionPanel extends React.Component {
           }
           tooltipText="Reset selected alerts to untriaged"
         />
-        {/* )} */}
+        )}
       </div>
     );
   }
