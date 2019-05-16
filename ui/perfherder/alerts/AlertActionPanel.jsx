@@ -89,7 +89,7 @@ export default class AlertActionPanel extends React.Component {
             </Col>
           )}
 
-          {!this.hasTriagedAlerts() && !this.allAlertsConfirming() && (
+          {(!this.hasTriagedAlerts() || this.allAlertsConfirming()) && (
             <React.Fragment>
               {/* onClick markAlertsAcknowledged(alertSummary) */}
               <Col sm="auto" className="p-2">
