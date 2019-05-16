@@ -1,6 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'reactstrap';
+import { Button, Row, Col } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faClock,
+  faCheck,
+  faBan,
+  faLevelDownAlt,
+  faArrowAltCircleRight,
+} from '@fortawesome/free-solid-svg-icons';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { alertStatus } from '../constants';
@@ -42,23 +50,97 @@ export default class AlertActionPanel extends React.Component {
       alert => alert.status !== alertStatus.untriaged,
     );
 
+  allAlertsConfirming = () =>
+    this.props.selectedAlerts.every(
+      alert => alert.status === alertStatus.confirming,
+    );
+
   // TODO add reset onclick functionality
   render() {
     const { selectedAlerts } = this.props;
 
     return (
-      <div className="bg-lightgray px-3 py-4">
-        {this.hasTriagedAlerts() && (
-        <SimpleTooltip
-          text={
-            <Button color="warning" onClick={() => {}}>
-              {' '}
-              Reset
-            </Button>
-          }
-          tooltipText="Reset selected alerts to untriaged"
-        />
-        )}
+      <div className="bg-lightgray">
+        <Row className="m-0 px-2 py-3">
+          {this.hasTriagedAlerts() && (
+            <Col sm="auto" className="p-2">
+              <SimpleTooltip
+                text={
+                  <Button color="warning" onClick={() => {}}>
+                    Reset
+                  </Button>
+                }
+                tooltipText="Reset selected alerts to untriaged"
+              />
+            </Col>
+          )}
+
+          {!this.hasTriagedAlerts() && !this.allAlertsConfirming() && (
+            // onClick markAlertsConfirming(alertSummary)
+            <Col sm="auto" className="p-2">
+              <SimpleTooltip
+                text={
+                  <Button color="secondary" onClick={() => {}}>
+                    <FontAwesomeIcon icon={faClock} /> Confirming
+                  </Button>
+                }
+                tooltipText="Retriggers & backfills are pending"
+              />
+            </Col>
+          )}
+
+          {!this.hasTriagedAlerts() && !this.allAlertsConfirming() && (
+            <React.Fragment>
+              {/* onClick markAlertsAcknowledged(alertSummary) */}
+              <Col sm="auto" className="p-2">
+                <SimpleTooltip
+                  text={
+                    <Button color="secondary" onClick={() => {}}>
+                      <FontAwesomeIcon icon={faCheck} /> Acknowledge
+                    </Button>
+                  }
+                  tooltipText="Acknowledge selected alerts as valid"
+                />
+              </Col>
+
+              {/* onClick markAlertsInvalid(alertSummary) */}
+              <Col sm="auto" className="p-2">
+                <SimpleTooltip
+                  text={
+                    <Button color="secondary" onClick={() => {}}>
+                      <FontAwesomeIcon icon={faBan} /> Mark invalid
+                    </Button>
+                  }
+                  tooltipText="Mark selected alerts as invalid"
+                />
+              </Col>
+
+              {/* onClick markAlertsDownstream(alertSummary) */}
+              <Col sm="auto" className="p-2">
+                <SimpleTooltip
+                  text={
+                    <Button color="secondary" onClick={() => {}}>
+                      <FontAwesomeIcon icon={faLevelDownAlt} /> Mark downstream
+                    </Button>
+                  }
+                  tooltipText="Mark selected alerts as downstream from an alert summary on another branch"
+                />
+              </Col>
+
+              {/* onClick reassignAlerts(alertSummary) */}
+              <Col sm="auto" className="p-2">
+                <SimpleTooltip
+                  text={
+                    <Button color="secondary" onClick={() => {}}>
+                      <FontAwesomeIcon icon={faArrowAltCircleRight} /> Reassign
+                    </Button>
+                  }
+                  tooltipText="Reassign selected alerts to another alert summary on the same branch"
+                />
+              </Col>
+            </React.Fragment>
+          )}
+        </Row>
       </div>
     );
   }
