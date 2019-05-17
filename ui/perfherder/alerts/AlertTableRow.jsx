@@ -32,7 +32,8 @@ export default class AlertTableRow extends React.Component {
       // eslint-disable-next-line react/no-did-update-set-state
       return this.setState({ checkboxSelected: allSelected });
     }
-
+    // remove checkbox when an action is taken in the AlertActionPanel
+    // (it resets selectedAlerts)
     if (prevProps.selectedAlerts !== selectedAlerts && !selectedAlerts.length) {
       // eslint-disable-next-line react/no-did-update-set-state
       return this.setState({ checkboxSelected: false });

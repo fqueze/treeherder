@@ -20,7 +20,7 @@ export default class AlertActionPanel extends React.Component {
     this.state = {};
   }
 
-  // Can we update multple alerts at a time?
+  // Can we update multiple alerts at a time?
   // TODO error handling
   modifySelectedAlerts = (selectedAlerts, modification) =>
     Promise.all(selectedAlerts.map(alert => modifyAlert(alert, modification)));
@@ -106,7 +106,6 @@ export default class AlertActionPanel extends React.Component {
           )}
 
           {!this.hasTriagedAlerts() && !this.allAlertsConfirming() && (
-            // onClick markAlertsConfirming(alertSummary)
             <Col sm="auto" className="p-2">
               <SimpleTooltip
                 text={
@@ -124,7 +123,6 @@ export default class AlertActionPanel extends React.Component {
 
           {(!this.hasTriagedAlerts() || this.allAlertsConfirming()) && (
             <React.Fragment>
-              {/* onClick markAlertsAcknowledged(alertSummary) */}
               <Col sm="auto" className="p-2">
                 <SimpleTooltip
                   text={
@@ -139,7 +137,6 @@ export default class AlertActionPanel extends React.Component {
                 />
               </Col>
 
-              {/* onClick markAlertsInvalid(alertSummary) */}
               <Col sm="auto" className="p-2">
                 <SimpleTooltip
                   text={
