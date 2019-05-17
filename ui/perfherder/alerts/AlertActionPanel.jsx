@@ -22,9 +22,8 @@ export default class AlertActionPanel extends React.Component {
 
   // Can we update multple alerts at a time?
   // TODO error handling
-  modifySelectedAlerts = (selectedAlerts, modification) => {
+  modifySelectedAlerts = (selectedAlerts, modification) =>
     Promise.all(selectedAlerts.map(alert => modifyAlert(alert, modification)));
-  };
 
   resetAlerts = async () => {
     const {
@@ -56,27 +55,28 @@ export default class AlertActionPanel extends React.Component {
 
     // TODO do this gracefully and in parallel
     summariesToUpdate.forEach(summary => fetchAlertSummaries(summary.id));
-    this.clearSelectedAlerts();    
+    this.clearSelectedAlerts();
   };
 
   clearSelectedAlerts = () => {
-    const { selectedAlerts, allSelected, updateState } = this.props;
+    const { allSelected, updateState } = this.props;
     const updates = { selectedAlerts: [] };
 
     if (allSelected) {
       updates.allSelected = false;
     }
     updateState(updates);
-  }
+  };
 
   updateAlerts = async newStatus => {
-    const { selectedAlerts, fetchAlertSummaries, alertSummary,  } = this.props;
+    const { selectedAlerts, fetchAlertSummaries, alertSummary } = this.props;
 
     await this.modifySelectedAlerts(selectedAlerts, {
       status: alertStatusMap[newStatus],
     });
+
     fetchAlertSummaries(alertSummary.id);
-    this.clearSelectedAlerts();    
+    this.clearSelectedAlerts();
   };
 
   hasTriagedAlerts = () =>
@@ -188,4 +188,13 @@ export default class AlertActionPanel extends React.Component {
 
 AlertActionPanel.propTypes = {
   selectedAlerts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  fetchAlertSummaries: PropTypes.func.isRequired,
+  alertSummary: PropTypes.shape({}),
+  updateState: PropTypes.func.isRequired,
+  allSelected: PropTypes.bool.isRequired,
+  alertSummaries: PropTypes.arrayOf(PropTypes.shape({})).isRequired,  
+};
+
+AlertActionPanel.defaultProps = {
+  alertSummary: null,
 };

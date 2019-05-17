@@ -275,7 +275,7 @@ export default class AlertTable extends React.Component {
                     alertSummaries={alertSummaries}
                     alertSummary={alertSummary}
                     fetchAlertSummaries={fetchAlertSummaries}
-                    updateState={(state) => this.setState(state)}
+                    updateState={state => this.setState(state)}
                   />
                 )}
               </div>
@@ -303,6 +303,7 @@ AlertTable.propTypes = {
     hideDownstream: PropTypes.bool,
     hideImprovements: PropTypes.bool,
   }).isRequired,
+  fetchAlertSummaries: PropTypes.func.isRequired,
 };
 
 AlertTable.defaultProps = {

@@ -34,6 +34,7 @@ export default class AlertTableRow extends React.Component {
     }
 
     if (prevProps.selectedAlerts !== selectedAlerts && !selectedAlerts.length) {
+      // eslint-disable-next-line react/no-did-update-set-state
       return this.setState({ checkboxSelected: false });
     }
   }
