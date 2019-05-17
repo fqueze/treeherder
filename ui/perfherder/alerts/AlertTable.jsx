@@ -27,7 +27,6 @@ export default class AlertTable extends React.Component {
       filteredAlerts: [],
       allSelected: false,
       selectedAlerts: [],
-      alertsSelected: false,
     };
   }
 
@@ -167,7 +166,6 @@ export default class AlertTable extends React.Component {
       filteredAlerts,
       allSelected,
       selectedAlerts,
-      alertsSelected,
     } = this.state;
 
     const downstreamIdsLength = downstreamIds.length;
@@ -191,8 +189,9 @@ export default class AlertTable extends React.Component {
                       <Label check className="pl-1">
                         <Input
                           type="checkbox"
+                          checked={allSelected}
                           disabled={!user.isStaff}
-                          onClick={() =>
+                          onChange={() =>
                             this.setState({ allSelected: !allSelected })
                           }
                         />
@@ -228,7 +227,6 @@ export default class AlertTable extends React.Component {
                     allSelected={allSelected}
                     updateSelectedAlerts={alerts => this.setState(alerts)}
                     selectedAlerts={selectedAlerts}
-                    alertsSelected={alertsSelected}
                   />
                 ))}
                 {downstreamIdsLength > 0 && (

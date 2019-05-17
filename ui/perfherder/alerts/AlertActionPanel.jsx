@@ -65,8 +65,6 @@ export default class AlertActionPanel extends React.Component {
 
     if (allSelected) {
       updates.allSelected = false;
-    } else {
-      updates.alertsSelected = false;
     }
     updateState(updates);
   }

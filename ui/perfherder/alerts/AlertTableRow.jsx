@@ -26,13 +26,15 @@ export default class AlertTableRow extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.allSelected !== this.props.allSelected) {
+    const { allSelected, selectedAlerts } = this.props;
+
+    if (prevProps.allSelected !== allSelected) {
       // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ checkboxSelected: this.props.allSelected });
+      return this.setState({ checkboxSelected: allSelected });
     }
 
-    if (prevProps.alertsSelected !== this.props.alertsSelected) {
-      this.setState({ checkboxSelected: this.props.alertsSelected });      
+    if (prevProps.selectedAlerts !== selectedAlerts && !selectedAlerts.length) {
+      return this.setState({ checkboxSelected: false });
     }
   }
 
