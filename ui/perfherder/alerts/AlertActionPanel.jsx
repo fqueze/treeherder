@@ -33,6 +33,7 @@ export default class AlertActionPanel extends React.Component {
       fetchAlertSummaries,
     } = this.props;
 
+    // TODO is this still needed (seems like it'd be to support an edge case)?
     // We need to update the summary and any related summaries when updating the alert
     const otherAlertSummaries = selectedAlerts
       .map(alert =>
@@ -52,8 +53,6 @@ export default class AlertActionPanel extends React.Component {
     // when an alert status is updated via the API, the corresponding
     // alertSummary status is also updated (in the backend) so we need
     // to fetch the updated alertSummary to capture the change in the UI
-
-    // TODO do this gracefully and in parallel
     summariesToUpdate.forEach(summary => fetchAlertSummaries(summary.id));
     this.clearSelectedAlerts();
   };
