@@ -108,7 +108,6 @@ export default class AlertModal extends React.Component {
 AlertModal.propTypes = {
   showModal: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
-  alertSummary: PropTypes.shape({}).isRequired,
   updateAndClose: PropTypes.func.isRequired,
   dropdownOption: PropTypes.shape({}),
   header: PropTypes.string.isRequired,

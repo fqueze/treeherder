@@ -131,7 +131,6 @@ export default class StatusDropdown extends React.Component {
           <AlertModal
             showModal={showBugModal}
             toggle={() => this.toggle('showBugModal')}
-            alertSummary={alertSummary}
             updateAndClose={(event, inputValue) =>
               this.updateAndClose(
                 event,
@@ -145,7 +144,7 @@ export default class StatusDropdown extends React.Component {
               )
             }
             header="Link to Bug"
-            title="Enter Bug"
+            title="Bug Number"
             dropdownOption={
               <Col>
                 <Label for="issueTrackerSelector">Select Bug Tracker</Label>

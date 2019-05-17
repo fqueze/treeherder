@@ -14,10 +14,14 @@ import SimpleTooltip from '../../shared/SimpleTooltip';
 import { alertStatusMap } from '../constants';
 import { modifyAlert } from '../helpers';
 
+import AlertModal from './AlertModal';
+
 export default class AlertActionPanel extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      showModal: false,
+    };
   }
 
   // Can we update multiple alerts at a time?
@@ -88,9 +92,46 @@ export default class AlertActionPanel extends React.Component {
       alert => alert.status === alertStatusMap.confirming,
     );
 
+  updateAndClose = async (event, params) => {
+    event.preventDefault();
+    // updateAlerts
+    this.toggle();
+  };
+
+  toggle = () => {
+    this.setState(prevState => ({
+      showModal: !prevState.showModal,
+    }));
+  };
+
+  //   $scope.update = () => {
+  //     const newId = parseInt(
+  //         $scope.modifyAlert.newId.$modelValue);
+
+  //     modifySelectedAlerts(alertSummary, {
+  //         status: phAlertStatusMap.DOWNSTREAM.id,
+  //         related_summary_id: newId,
+  //     }).then(() => {
+  //             const summariesToUpdate = [alertSummary].concat(
+  //                 allAlertSummaries.find(alertSummary =>
+  //                     alertSummary.id === newId) || []);
+  //             $q.all(summariesToUpdate.map(alertSummary => refreshAlertSummary(alertSummary),
+  //           )).then(() => $uibModalInstance.close('downstreamed'));
+  //         });
+  // };
+
   render() {
+    const { showModal } = this.state;
+
     return (
       <div className="bg-lightgray">
+        <AlertModal
+          toggle={this.toggle}
+          showModal={showModal}
+          header="Mark Alerts Downstream"
+          title="Alert Number"
+          updateAndClose={(event, inputValue) => console.log(inputValue)}
+        />
         <Row className="m-0 px-2 py-3">
           {this.hasTriagedAlerts() && (
             <Col sm="auto" className="p-2">
@@ -155,7 +196,7 @@ export default class AlertActionPanel extends React.Component {
               <Col sm="auto" className="p-2">
                 <SimpleTooltip
                   text={
-                    <Button color="secondary" onClick={() => {}}>
+                    <Button color="secondary" onClick={this.toggle}>
                       <FontAwesomeIcon icon={faLevelDownAlt} /> Mark downstream
                     </Button>
                   }
