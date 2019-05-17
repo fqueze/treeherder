@@ -27,6 +27,7 @@ export default class AlertTable extends React.Component {
       filteredAlerts: [],
       allSelected: false,
       selectedAlerts: [],
+      alertsSelected: false,
     };
   }
 
@@ -166,6 +167,7 @@ export default class AlertTable extends React.Component {
       filteredAlerts,
       allSelected,
       selectedAlerts,
+      alertsSelected,
     } = this.state;
 
     const downstreamIdsLength = downstreamIds.length;
@@ -226,6 +228,7 @@ export default class AlertTable extends React.Component {
                     allSelected={allSelected}
                     updateSelectedAlerts={alerts => this.setState(alerts)}
                     selectedAlerts={selectedAlerts}
+                    alertsSelected={alertsSelected}
                   />
                 ))}
                 {downstreamIdsLength > 0 && (
@@ -270,9 +273,11 @@ export default class AlertTable extends React.Component {
                     selectedAlerts={
                       allSelected ? alertSummary.alerts : selectedAlerts
                     }
+                    allSelected={allSelected}
                     alertSummaries={alertSummaries}
                     alertSummary={alertSummary}
                     fetchAlertSummaries={fetchAlertSummaries}
+                    updateState={(state) => this.setState(state)}
                   />
                 )}
               </div>

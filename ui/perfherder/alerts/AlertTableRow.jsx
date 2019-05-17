@@ -14,7 +14,6 @@ import SimpleTooltip from '../../shared/SimpleTooltip';
 import ProgressBar from '../ProgressBar';
 import { alertStatusMap } from '../constants';
 
-
 // TODO remove $stateParams and $state after switching to react router
 export default class AlertTableRow extends React.Component {
   constructor(props) {
@@ -30,6 +29,10 @@ export default class AlertTableRow extends React.Component {
     if (prevProps.allSelected !== this.props.allSelected) {
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ checkboxSelected: this.props.allSelected });
+    }
+
+    if (prevProps.alertsSelected !== this.props.alertsSelected) {
+      this.setState({ checkboxSelected: this.props.alertsSelected });      
     }
   }
 

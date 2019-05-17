@@ -152,7 +152,6 @@ export class AlertsView extends React.Component {
         );
 
         alertSummaries.splice(index, 1, summary.results[0]);
-
       }
       updates = {
         ...updates,

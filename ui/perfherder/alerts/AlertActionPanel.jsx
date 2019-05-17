@@ -56,15 +56,29 @@ export default class AlertActionPanel extends React.Component {
 
     // TODO do this gracefully and in parallel
     summariesToUpdate.forEach(summary => fetchAlertSummaries(summary.id));
+    this.clearSelectedAlerts();    
   };
 
+  clearSelectedAlerts = () => {
+    const { selectedAlerts, allSelected, updateState } = this.props;
+    const updates = { selectedAlerts: [] };
+
+    if (allSelected) {
+      updates.allSelected = false;
+    } else {
+      updates.alertsSelected = false;
+    }
+    updateState(updates);
+  }
+
   updateAlerts = async newStatus => {
-    const { selectedAlerts, fetchAlertSummaries, alertSummary } = this.props;
+    const { selectedAlerts, fetchAlertSummaries, alertSummary,  } = this.props;
 
     await this.modifySelectedAlerts(selectedAlerts, {
       status: alertStatusMap[newStatus],
     });
     fetchAlertSummaries(alertSummary.id);
+    this.clearSelectedAlerts();    
   };
 
   hasTriagedAlerts = () =>

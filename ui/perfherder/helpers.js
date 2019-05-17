@@ -738,4 +738,5 @@ export const getFrameworkData = props => {
   return { id: 1, name: 'talos' };
 };
 
-export const getStatus = (status, statusMap=summaryStatusMap) => Object.entries(statusMap).find(item => status === item[1])[0];
+export const getStatus = (status, statusMap = summaryStatusMap) =>
+  Object.entries(statusMap).find(item => status === item[1])[0];
