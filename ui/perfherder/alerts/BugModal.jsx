@@ -19,7 +19,7 @@ export default class BugModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedValue: this.props.issueTrackers[0].text,
+      selectedValue: this.props.defaultValue,
       inputValue: '',
       invalidInput: false,
       validated: false,
@@ -27,9 +27,9 @@ export default class BugModal extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.issueTrackers !== this.props.issueTrackers) {
+    if (prevProps.dropdownList !== this.props.dropdownList) {
       // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ selectedValue: this.props.issueTrackers[0].text });
+      this.setState({ selectedValue: this.props.dropdownList[0].text });
     }
   }
 
@@ -62,22 +62,21 @@ export default class BugModal extends React.Component {
       toggle,
       updateAndClose,
       dropdownOption,
-      issueTrackers,
+      header,
+      title,
     } = this.props;
+
     const { inputValue, invalidInput, validated, selectedValue } = this.state;
-    const tracker = issueTrackers.length
-      ? issueTrackers.find(item => item.text === selectedValue)
-      : null;
 
     return (
-      <Modal isOpen={showModal} className="">
-        <ModalHeader toggle={toggle}>Link to Bug</ModalHeader>
+      <Modal isOpen={showModal}>
+        <ModalHeader toggle={toggle}>{header}</ModalHeader>
         <Form>
           <ModalBody>
             <FormGroup>
               <Row>
                 <Col>
-                  <Label for="taskId">Enter Bug</Label>
+                  <Label for="taskId">{title}</Label>
                   <Input
                     value={inputValue}
                     onChange={this.updateInput}
@@ -102,14 +101,7 @@ export default class BugModal extends React.Component {
             <Button
               color="secondary"
               onClick={event =>
-                updateAndClose(
-                  event,
-                  {
-                    bug_number: parseInt(inputValue, 10),
-                    issue_tracker: tracker.id,
-                  },
-                  'showBugModal',
-                )
+                updateAndClose(event, inputValue, selectedValue)
               }
               disabled={invalidInput || !inputValue.length || !validated}
               type="submit"
@@ -126,7 +118,7 @@ export default class BugModal extends React.Component {
 BugModal.propTypes = {
   showModal: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
-  issueTrackers: PropTypes.arrayOf(
+  dropdownList: PropTypes.arrayOf(
     PropTypes.shape({
       text: PropTypes.string,
       id: PropTypes.number,
@@ -135,9 +127,12 @@ BugModal.propTypes = {
   alertSummary: PropTypes.shape({}).isRequired,
   updateAndClose: PropTypes.func.isRequired,
   dropdownOption: PropTypes.func,
+  defaultValue: PropTypes.string.isRequired,
+  header: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
 };
 
 BugModal.defaultProps = {
-  issueTrackers: [],
+  dropdownList: [],
   dropdownOption: null,
 };

@@ -131,8 +131,22 @@ export default class StatusDropdown extends React.Component {
             showModal={showBugModal}
             toggle={() => this.toggle('showBugModal')}
             alertSummary={alertSummary}
-            updateAndClose={this.updateAndClose}
-            issueTrackers={issueTrackers}
+            updateAndClose={(event, inputValue, selectedValue) =>
+              this.updateAndClose(
+                event,
+                {
+                  bug_number: parseInt(inputValue, 10),
+                  issue_tracker: issueTrackers.find(
+                    item => item.text === selectedValue,
+                  ).id,
+                },
+                'showBugModal',
+              )
+            }
+            dropdownList={issueTrackers}
+            defaultValue={issueTrackers[0].text}
+            header="Link to Bug"
+            title="Enter Bug"
             dropdownOption={selectedValue => (
               <Col>
                 <Label for="issueTrackerSelector">Select Bug Tracker</Label>
