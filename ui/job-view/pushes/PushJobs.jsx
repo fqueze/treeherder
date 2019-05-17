@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -15,32 +15,33 @@ import { withPushes } from '../context/Pushes';
 
 import Platform from './Platform';
 
-class PushJobs extends React.Component {
-  static getDerivedStateFromProps(nextProps) {
-    const { filterModel, push, platforms, runnableVisible } = nextProps;
-    const selectedJobId = parseInt(getUrlParam('selectedJob'), 10);
-    const filteredPlatforms = platforms.reduce((acc, platform) => {
-      const thisPlatform = { ...platform };
-      const suffix =
-        thSimplePlatforms.includes(platform.name) && platform.option === 'opt'
-          ? ''
-          : ` ${platform.option}`;
-      thisPlatform.title = `${thisPlatform.name}${suffix}`;
-      thisPlatform.visible = true;
-      return [
-        ...acc,
-        PushJobs.filterPlatform(
-          thisPlatform,
-          selectedJobId,
-          push,
-          filterModel,
-          runnableVisible,
-        ),
-      ];
-    }, []);
-
-    return { filteredPlatforms };
-  }
+class PushJobs extends Component {
+  // static getDerivedStateFromProps(nextProps) {
+  //   const { filterModel, push, platforms, runnableVisible } = nextProps;
+  //   const selectedJobId = parseInt(getUrlParam('selectedJob'), 10);
+  //   const filteredPlatforms = platforms.reduce((acc, platform) => {
+  //     const thisPlatform = { ...platform };
+  //     const suffix =
+  //       thSimplePlatforms.includes(platform.name) && platform.option === 'opt'
+  //         ? ''
+  //         : ` ${platform.option}`;
+  //     thisPlatform.title = `${thisPlatform.name}${suffix}`;
+  //     thisPlatform.visible = true;
+  //     return [
+  //       ...acc,
+  //       PushJobs.filterPlatform(
+  //         thisPlatform,
+  //         selectedJobId,
+  //         push,
+  //         filterModel,
+  //         runnableVisible,
+  //       ),
+  //     ];
+  //   }, []);
+  //
+  //   console.log('deriving new state in PushJobs', push.revision);
+  //   return { filteredPlatforms };
+  // }
 
   static filterPlatform(
     platform,
@@ -73,11 +74,60 @@ class PushJobs extends React.Component {
 
     this.pushId = push.id;
     this.aggregateId = getPushTableId(repoName, this.pushId, push.revision);
-
-    this.state = {
-      filteredPlatforms: [],
-    };
   }
+
+  shouldComponentUpdate(nextProps) {
+    const {
+      platforms,
+      filterModel,
+      pushGroupState,
+      runnableVisible,
+      duplicateJobsVisible,
+      groupCountsExpanded,
+    } = this.props;
+    const {
+      platforms: nextPlatforms,
+      filterModel: nextFilterModel,
+      pushGroupState: nextPushGroupState,
+      runnableVisible: nextRunnableVisible,
+      duplicateJobsVisible: nextDuplicateJobsVisible,
+      groupCountsExpanded: nextGroupCountsExpanded,
+    } = nextProps;
+
+    return (
+      nextPlatforms !== platforms ||
+      nextFilterModel !== filterModel ||
+      pushGroupState !== nextPushGroupState ||
+      runnableVisible !== nextRunnableVisible ||
+      duplicateJobsVisible !== nextDuplicateJobsVisible ||
+      groupCountsExpanded !== nextGroupCountsExpanded
+    );
+  }
+
+  getFilteredPlatforms = () => {
+    const { filterModel, push, platforms, runnableVisible } = this.props;
+    const selectedJobId = parseInt(getUrlParam('selectedJob'), 10);
+
+    return platforms.reduce((acc, platform) => {
+      const thisPlatform = { ...platform };
+      const suffix =
+        thSimplePlatforms.includes(platform.name) && platform.option === 'opt'
+          ? ''
+          : ` ${platform.option}`;
+      thisPlatform.title = `${thisPlatform.name}${suffix}`;
+      thisPlatform.visible = true;
+      return [
+        ...acc,
+        PushJobs.filterPlatform(
+          thisPlatform,
+          selectedJobId,
+          push,
+          filterModel,
+          runnableVisible,
+        ),
+      ];
+    }, []);
+  };
 
   onMouseDown = ev => {
     const { selectedJob, togglePinJob } = this.props;
@@ -137,7 +187,7 @@ class PushJobs extends React.Component {
 
   filterPlatformCallback = (platform, selectedJobId) => {
     const { push, filterModel, runnableVisible } = this.props;
-    const { filteredPlatforms } = this.state;
+    const filteredPlatforms = this.getFilteredPlatforms();
 
     // This actually filters the platform in-place.  So we just need to
     // trigger a re-render by giving it a new ``filteredPlatforms`` object instance.
@@ -149,12 +199,12 @@ class PushJobs extends React.Component {
       runnableVisible,
     );
     if (filteredPlatforms.length) {
-      this.setState({ filteredPlatforms: [...filteredPlatforms] });
+      // this.setState({ filteredPlatforms: [...filteredPlatforms] });
     }
   };
 
   render() {
-    const filteredPlatforms = this.state.filteredPlatforms || [];
+    const filteredPlatforms = this.getFilteredPlatforms();
     const {
       repoName,
       filterModel,
