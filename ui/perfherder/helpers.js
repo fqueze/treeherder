@@ -618,7 +618,7 @@ export const modifySelectedAlerts = (alertSummary, modification) => {
       }),
   );
 };
-
+// TODO replace usage with alertSummaryStatus
 export const getAlertSummaryStatusText = alertSummary =>
   Object.values(phAlertSummaryStatusMap).find(
     status => status.id === alertSummary.status,

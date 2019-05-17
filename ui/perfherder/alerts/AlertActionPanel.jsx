@@ -12,6 +12,7 @@ import {
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { alertStatus } from '../constants';
+import { modifyAlert } from '../helpers';
 
 export default class AlertActionPanel extends React.Component {
   constructor(props) {
@@ -46,48 +47,44 @@ export default class AlertActionPanel extends React.Component {
   // };
 
   // Can we update multple alerts at a time?
+  // TODO error handling
   modifySelectedAlerts = (selectedAlerts, modification) => {
-    for (const alert in selectedAlerts) {
-      modifyAlert(alert, modification);
-    }
+    selectedAlerts.forEach(alert => modifyAlert(alert, modification));
   };
 
   resetAlerts = () => {
+    const {
+      selectedAlerts,
+      alertSummaries,
+      alertSummary,
+      fetchAlertSummaries,
+    } = this.props;
+
+    // TODO Does this still need to happen?
+
     // We need to update not only the summary when resetting the alert,
     // but other summaries affected by the change
-    const { selectedAlerts, alertSummaries, alertSummary } = this.props;
+    // const otherAlertSummaries = selectedAlerts
+    //   .map(alert =>
+    //     alertSummaries.find(
+    //       alertSummary => alertSummary.id === alert.related_summary_id,
+    //     ),
+    //   )
+    //   .filter(alertSummary => alertSummary !== undefined);
 
-    // I don't think we need this, since its only being used to refetch alertsummary data
-    // to refresh the UI with the changes
-    const otherAlertSummaries = selectedAlerts
-      .map(alert =>
-        alertSummaries.find(
-          alertSummary => alertSummary.id === alert.related_summary_id,
-        ),
-      )
-      .filter(alertSummary => alertSummary !== undefined);
+    // const summariesToUpdate = [...[alertSummary], ...otherAlertSummaries];
+    // console.log(summariesToUpdate);
 
-    const summariesToUpdate = [...[alertSummary], ...otherAlertSummaries];
-    console.log(summariesToUpdate);
-
-    this.modifySelectedAlerts(alertSummary, {
+    this.modifySelectedAlerts(selectedAlerts, {
       status: alertStatus.untriaged,
       related_summary_id: null,
     });
+
+    // when an alert status is updated via the API, the corresponding
+    // alertSummary status is also updated (in the backend) so we need
+    // to fetch the updated alertSummary to capture the change in the UI
+    fetchAlertSummaries(alertSummary.id);
   };
-
-  // export const modifySelectedAlerts = (alertSummary, modification) => {
-  //   alertSummary.allSelected = false;
-
-  //   return Promise.all(
-  //     alertSummary.alerts
-  //       .filter(alert => alert.selected)
-  //       .map(selectedAlert => {
-  //         selectedAlert.selected = false;
-  //         return modifyAlert(selectedAlert, modification);
-  //       }),
-  //   );
-  // };
 
   hasTriagedAlerts = () =>
     this.props.selectedAlerts.some(

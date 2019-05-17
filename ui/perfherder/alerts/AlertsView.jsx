@@ -91,7 +91,7 @@ export class AlertsView extends React.Component {
   };
 
   // TODO potentially pass as a prop for testing purposes
-  async fetchAlertSummaries(page = this.state.page) {
+  async fetchAlertSummaries(id = this.state.id, update = false) {
     this.setState({ loading: true, errorMessages: [] });
 
     const {
@@ -100,17 +100,24 @@ export class AlertsView extends React.Component {
       errorMessages,
       issueTrackers,
       optionCollectionMap,
-      id,
+      alertSummaries,
+      count,
+      page,
     } = this.state;
 
     let updates = { loading: false };
-    const params = {
-      framework: framework.id,
-      page,
-    };
+    let params;
 
-    if (id) params.id = id;
-    if (alertSummaryStatus[status] !== -1) {
+    if (id) {
+      params = { id };
+    } else {
+      params = {
+        framework: framework.id,
+        page,
+      };
+    }
+
+    if (!id && alertSummaryStatus[status] !== -1) {
       // -1 ('all') is created for UI purposes but is not a valid API parameter
       params.status = alertSummaryStatus[status];
     }
@@ -137,16 +144,24 @@ export class AlertsView extends React.Component {
 
     if (response.alertSummaries) {
       const summary = response.alertSummaries;
+
+      if (update) {
+        const index = alertSummaries.indexOf(summary.results);
+        alertSummaries.splice(index, 1, summary.results[0]);
+      }
       updates = {
         ...updates,
         ...{
-          alertSummaries: summary.results,
-          count: Math.round(summary.count / 10),
+          alertSummaries: update
+            ? [...summary.results, ...alertSummaries]
+            : summary.results,
+          count: update ? count : Math.round(summary.count / 10),
         },
       };
     } else {
       updates = { ...updates, ...response };
     }
+    console.log(updates);
     this.setState(updates);
   }
 
@@ -223,6 +238,7 @@ export class AlertsView extends React.Component {
                 issueTrackers={issueTrackers}
                 {...this.props}
                 optionCollectionMap={optionCollectionMap}
+                fetchAlertSummaries={id => this.fetchAlertSummaries(id, true)}
               />
             ))
           }

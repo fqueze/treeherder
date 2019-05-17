@@ -153,7 +153,13 @@ export default class AlertTable extends React.Component {
   };
 
   render() {
-    const { user, validated, alertSummaries, issueTrackers } = this.props;
+    const {
+      user,
+      validated,
+      alertSummaries,
+      issueTrackers,
+      fetchAlertSummaries,
+    } = this.props;
     const {
       alertSummary,
       downstreamIds,
@@ -266,6 +272,7 @@ export default class AlertTable extends React.Component {
                     }
                     alertSummaries={alertSummaries}
                     alertSummary={alertSummary}
+                    fetchAlertSummaries={fetchAlertSummaries}
                   />
                 )}
               </div>

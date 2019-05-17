@@ -21,7 +21,6 @@ export default class AlertTableRow extends React.Component {
       alert: this.props.alert,
       starred: this.props.alert.starred,
       checkboxSelected: false,
-      status: this.props.alert.status,
     };
   }
 
