@@ -49,10 +49,12 @@ export default class AlertActionPanel extends React.Component {
   // Can we update multple alerts at a time?
   // TODO error handling
   modifySelectedAlerts = (selectedAlerts, modification) => {
-    selectedAlerts.forEach(alert => modifyAlert(alert, modification));
+    Promise.all(
+      selectedAlerts.forEach(alert => modifyAlert(alert, modification)),
+    );
   };
 
-  resetAlerts = () => {
+  resetAlerts = async () => {
     const {
       selectedAlerts,
       alertSummaries,
@@ -75,7 +77,7 @@ export default class AlertActionPanel extends React.Component {
     // const summariesToUpdate = [...[alertSummary], ...otherAlertSummaries];
     // console.log(summariesToUpdate);
 
-    this.modifySelectedAlerts(selectedAlerts, {
+    await this.modifySelectedAlerts(selectedAlerts, {
       status: alertStatus.untriaged,
       related_summary_id: null,
     });

@@ -146,14 +146,16 @@ export class AlertsView extends React.Component {
       const summary = response.alertSummaries;
 
       if (update) {
-        const index = alertSummaries.indexOf(summary.results);
+        const index = alertSummaries.findIndex(item => item.id === summary.results[0].id);
+        console.log(index);
         alertSummaries.splice(index, 1, summary.results[0]);
+        console.log(alertSummaries);
       }
       updates = {
         ...updates,
         ...{
           alertSummaries: update
-            ? [...summary.results, ...alertSummaries]
+            ? alertSummaries
             : summary.results,
           count: update ? count : Math.round(summary.count / 10),
         },
