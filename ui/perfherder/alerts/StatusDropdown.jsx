@@ -23,7 +23,7 @@ import { getData, update } from '../../helpers/http';
 import { getApiUrl, bzBaseUrl, createQueryParams } from '../../helpers/url';
 import { endpoints, summaryStatusMap } from '../constants';
 
-import BugModal from './BugModal';
+import AlertModal from './AlertModal';
 import NotesModal from './NotesModal';
 
 export default class StatusDropdown extends React.Component {
@@ -128,7 +128,7 @@ export default class StatusDropdown extends React.Component {
     return (
       <React.Fragment>
         {issueTrackers.length > 0 && (
-          <BugModal
+          <AlertModal
             showModal={showBugModal}
             toggle={() => this.toggle('showBugModal')}
             alertSummary={alertSummary}

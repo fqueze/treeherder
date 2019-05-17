@@ -15,7 +15,7 @@ import {
 } from 'reactstrap';
 import debounce from 'lodash/debounce';
 
-export default class BugModal extends React.Component {
+export default class AlertModal extends React.Component {
   // eslint-disable-next-line react/sort-comp
   constructor(props) {
     super(props);
@@ -105,7 +105,7 @@ export default class BugModal extends React.Component {
   }
 }
 
-BugModal.propTypes = {
+AlertModal.propTypes = {
   showModal: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
   alertSummary: PropTypes.shape({}).isRequired,
@@ -115,6 +115,6 @@ BugModal.propTypes = {
   title: PropTypes.string.isRequired,
 };
 
-BugModal.defaultProps = {
+AlertModal.defaultProps = {
   dropdownOption: null,
 };
