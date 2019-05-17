@@ -16,24 +16,16 @@ import {
 import debounce from 'lodash/debounce';
 
 export default class BugModal extends React.Component {
+  // eslint-disable-next-line react/sort-comp
   constructor(props) {
     super(props);
     this.state = {
-      selectedValue: this.props.defaultValue,
       inputValue: '',
       invalidInput: false,
       validated: false,
     };
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.dropdownList !== this.props.dropdownList) {
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ selectedValue: this.props.dropdownList[0].text });
-    }
-  }
-
-  // eslint-disable-next-line react/sort-comp
   validateInput = debounce(() => {
     const { inputValue } = this.state;
     const regex = /^[1-9]+[0-9]*$/;
@@ -66,7 +58,7 @@ export default class BugModal extends React.Component {
       title,
     } = this.props;
 
-    const { inputValue, invalidInput, validated, selectedValue } = this.state;
+    const { inputValue, invalidInput, validated } = this.state;
 
     return (
       <Modal isOpen={showModal}>
@@ -84,7 +76,7 @@ export default class BugModal extends React.Component {
                     placeholder="123456"
                   />
                 </Col>
-                {dropdownOption(selectedValue)}
+                {dropdownOption}
               </Row>
               <Row>
                 <Col>
@@ -100,9 +92,7 @@ export default class BugModal extends React.Component {
           <ModalFooter>
             <Button
               color="secondary"
-              onClick={event =>
-                updateAndClose(event, inputValue, selectedValue)
-              }
+              onClick={event => updateAndClose(event, inputValue)}
               disabled={invalidInput || !inputValue.length || !validated}
               type="submit"
             >
@@ -118,21 +108,13 @@ export default class BugModal extends React.Component {
 BugModal.propTypes = {
   showModal: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
-  dropdownList: PropTypes.arrayOf(
-    PropTypes.shape({
-      text: PropTypes.string,
-      id: PropTypes.number,
-    }),
-  ),
   alertSummary: PropTypes.shape({}).isRequired,
   updateAndClose: PropTypes.func.isRequired,
-  dropdownOption: PropTypes.func,
-  defaultValue: PropTypes.string.isRequired,
+  dropdownOption: PropTypes.shape({}),
   header: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
 };
 
 BugModal.defaultProps = {
-  dropdownList: [],
   dropdownOption: null,
 };

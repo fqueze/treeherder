@@ -32,6 +32,7 @@ export default class StatusDropdown extends React.Component {
     this.state = {
       showBugModal: false,
       showNotesModal: false,
+      selectedValue: this.props.issueTrackers[0].text,
     };
   }
 
@@ -120,7 +121,7 @@ export default class StatusDropdown extends React.Component {
 
   render() {
     const { alertSummary, user, issueTrackers } = this.props;
-    const { showBugModal, showNotesModal } = this.state;
+    const { showBugModal, showNotesModal, selectedValue } = this.state;
 
     const alertStatus = getStatus(alertSummary.status);
 
@@ -131,7 +132,7 @@ export default class StatusDropdown extends React.Component {
             showModal={showBugModal}
             toggle={() => this.toggle('showBugModal')}
             alertSummary={alertSummary}
-            updateAndClose={(event, inputValue, selectedValue) =>
+            updateAndClose={(event, inputValue) =>
               this.updateAndClose(
                 event,
                 {
@@ -143,11 +144,9 @@ export default class StatusDropdown extends React.Component {
                 'showBugModal',
               )
             }
-            dropdownList={issueTrackers}
-            defaultValue={issueTrackers[0].text}
             header="Link to Bug"
             title="Enter Bug"
-            dropdownOption={selectedValue => (
+            dropdownOption={
               <Col>
                 <Label for="issueTrackerSelector">Select Bug Tracker</Label>
                 <Input
@@ -163,7 +162,7 @@ export default class StatusDropdown extends React.Component {
                   ))}
                 </Input>
               </Col>
-            )}
+            }
           />
         )}
         <NotesModal
@@ -264,7 +263,11 @@ StatusDropdown.propTypes = {
   alertSummary: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
   updateState: PropTypes.func.isRequired,
-  issueTrackers: PropTypes.arrayOf(PropTypes.shape({})),
+  issueTrackers: PropTypes.arrayOf(
+    PropTypes.shape({
+      text: PropTypes.string,
+    }),
+  ),
   repoModel: PropTypes.shape({}).isRequired,
 };
 
