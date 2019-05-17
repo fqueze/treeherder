@@ -57,10 +57,17 @@ export default class BugModal extends React.Component {
   };
 
   render() {
-    const { showModal, toggle, issueTrackers, updateAndClose } = this.props;
+    const {
+      showModal,
+      toggle,
+      updateAndClose,
+      dropdownOption,
+      issueTrackers,
+    } = this.props;
     const { inputValue, invalidInput, validated, selectedValue } = this.state;
-
-    const tracker = issueTrackers.find(item => item.text === selectedValue);
+    const tracker = issueTrackers.length
+      ? issueTrackers.find(item => item.text === selectedValue)
+      : null;
 
     return (
       <Modal isOpen={showModal} className="">
@@ -78,22 +85,7 @@ export default class BugModal extends React.Component {
                     placeholder="123456"
                   />
                 </Col>
-                <Col>
-                  <Label for="issueTrackerSelector">Select Bug Tracker</Label>
-                  <Input
-                    onChange={event =>
-                      this.setState({ selectedValue: event.target.value })
-                    }
-                    type="select"
-                    name="issueTrackerSelector"
-                    value={selectedValue}
-                  >
-                    {issueTrackers.length > 0 &&
-                      issueTrackers.map(item => (
-                        <option key={item.id}>{item.text}</option>
-                      ))}
-                  </Input>
-                </Col>
+                {dropdownOption(selectedValue)}
               </Row>
               <Row>
                 <Col>
@@ -142,8 +134,10 @@ BugModal.propTypes = {
   ),
   alertSummary: PropTypes.shape({}).isRequired,
   updateAndClose: PropTypes.func.isRequired,
+  dropdownOption: PropTypes.func,
 };
 
 BugModal.defaultProps = {
   issueTrackers: [],
+  dropdownOption: null,
 };

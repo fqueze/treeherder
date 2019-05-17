@@ -5,6 +5,9 @@ import {
   DropdownMenu,
   DropdownItem,
   DropdownToggle,
+  Col,
+  Label,
+  Input,
 } from 'reactstrap';
 import moment from 'moment';
 import template from 'lodash/template';
@@ -127,9 +130,26 @@ export default class StatusDropdown extends React.Component {
           <BugModal
             showModal={showBugModal}
             toggle={() => this.toggle('showBugModal')}
-            issueTrackers={issueTrackers}
             alertSummary={alertSummary}
             updateAndClose={this.updateAndClose}
+            issueTrackers={issueTrackers}
+            dropdownOption={selectedValue => (
+              <Col>
+                <Label for="issueTrackerSelector">Select Bug Tracker</Label>
+                <Input
+                  onChange={event =>
+                    this.setState({ selectedValue: event.target.value })
+                  }
+                  type="select"
+                  name="issueTrackerSelector"
+                  value={selectedValue}
+                >
+                  {issueTrackers.map(item => (
+                    <option key={item.id}>{item.text}</option>
+                  ))}
+                </Input>
+              </Col>
+            )}
           />
         )}
         <NotesModal

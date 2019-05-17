@@ -188,7 +188,7 @@ AlertActionPanel.propTypes = {
   alertSummary: PropTypes.shape({}),
   updateState: PropTypes.func.isRequired,
   allSelected: PropTypes.bool.isRequired,
-  alertSummaries: PropTypes.arrayOf(PropTypes.shape({})).isRequired,  
+  alertSummaries: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 AlertActionPanel.defaultProps = {
