@@ -20,38 +20,10 @@ export default class AlertActionPanel extends React.Component {
     this.state = {};
   }
 
-  // resetAlerts = () => {
-  //   // We need to update not only the summary when resetting the alert,
-  //   // but other summaries affected by the change
-  //   const { alertSummaries, alertSummary } = this.props;
-  //   // TODO this seems a little convoluted since it's doing the same thing in modifySelectedUpdates
-  //   const selectedAlerts = alertSummary.alerts
-  //     .filter(alert => alert.selected)
-  //     .map(alert =>
-  //       alertSummaries.find(
-  //         alertSummary => alertSummary.id === alert.related_summary_id,
-  //       ),
-  //     )
-  //     .filter(alertSummary => alertSummary !== undefined);
-
-  //   const summariesToUpdate = [...[alertSummary], ...selectedAlerts];
-
-  //   modifySelectedAlerts(alertSummary, {
-  //     status: phAlertStatusMap.UNTRIAGED.id,
-  //     related_summary_id: null,
-  //   }).then(() =>
-  //     summariesToUpdate.forEach(alertSummary =>
-  //       this.updateAlertSummary(alertSummary),
-  //     ),
-  //   );
-  // };
-
   // Can we update multple alerts at a time?
   // TODO error handling
   modifySelectedAlerts = (selectedAlerts, modification) => {
-    Promise.all(
-      selectedAlerts.forEach(alert => modifyAlert(alert, modification)),
-    );
+    Promise.all(selectedAlerts.map(alert => modifyAlert(alert, modification)));
   };
 
   resetAlerts = async () => {
@@ -62,20 +34,16 @@ export default class AlertActionPanel extends React.Component {
       fetchAlertSummaries,
     } = this.props;
 
-    // TODO Does this still need to happen?
+    // We need to update the summary and any related summaries when updating the alert
+    const otherAlertSummaries = selectedAlerts
+      .map(alert =>
+        alertSummaries.find(
+          alertSummary => alertSummary.id === alert.related_summary_id,
+        ),
+      )
+      .filter(alertSummary => alertSummary !== undefined);
 
-    // We need to update not only the summary when resetting the alert,
-    // but other summaries affected by the change
-    // const otherAlertSummaries = selectedAlerts
-    //   .map(alert =>
-    //     alertSummaries.find(
-    //       alertSummary => alertSummary.id === alert.related_summary_id,
-    //     ),
-    //   )
-    //   .filter(alertSummary => alertSummary !== undefined);
-
-    // const summariesToUpdate = [...[alertSummary], ...otherAlertSummaries];
-    // console.log(summariesToUpdate);
+    const summariesToUpdate = [...[alertSummary], ...otherAlertSummaries];
 
     await this.modifySelectedAlerts(selectedAlerts, {
       status: alertStatus.untriaged,
@@ -85,7 +53,9 @@ export default class AlertActionPanel extends React.Component {
     // when an alert status is updated via the API, the corresponding
     // alertSummary status is also updated (in the backend) so we need
     // to fetch the updated alertSummary to capture the change in the UI
-    fetchAlertSummaries(alertSummary.id);
+
+    // TODO do this gracefully and in parallel
+    summariesToUpdate.forEach(summary => fetchAlertSummaries(summary.id));
   };
 
   hasTriagedAlerts = () =>
@@ -98,7 +68,6 @@ export default class AlertActionPanel extends React.Component {
       alert => alert.status === alertStatus.confirming,
     );
 
-  // TODO add reset onclick functionality
   render() {
     return (
       <div className="bg-lightgray">

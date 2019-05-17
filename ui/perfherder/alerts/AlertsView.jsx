@@ -92,7 +92,8 @@ export class AlertsView extends React.Component {
 
   // TODO potentially pass as a prop for testing purposes
   async fetchAlertSummaries(id = this.state.id, update = false) {
-    this.setState({ loading: true, errorMessages: [] });
+    // turn off loading when update is true (used to update alert statuses)
+    this.setState({ loading: !update, errorMessages: [] });
 
     const {
       framework,
@@ -146,7 +147,9 @@ export class AlertsView extends React.Component {
       const summary = response.alertSummaries;
 
       if (update) {
-        const index = alertSummaries.findIndex(item => item.id === summary.results[0].id);
+        const index = alertSummaries.findIndex(
+          item => item.id === summary.results[0].id,
+        );
         console.log(index);
         alertSummaries.splice(index, 1, summary.results[0]);
         console.log(alertSummaries);
@@ -154,9 +157,7 @@ export class AlertsView extends React.Component {
       updates = {
         ...updates,
         ...{
-          alertSummaries: update
-            ? alertSummaries
-            : summary.results,
+          alertSummaries: update ? alertSummaries : summary.results,
           count: update ? count : Math.round(summary.count / 10),
         },
       };
