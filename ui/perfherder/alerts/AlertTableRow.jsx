@@ -12,6 +12,8 @@ import { createQueryParams } from '../../helpers/url';
 import { getStatus, getGraphsURL, modifyAlert } from '../helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import ProgressBar from '../ProgressBar';
+import { alertStatusMap } from '../constants';
+
 
 // TODO remove $stateParams and $state after switching to react router
 export default class AlertTableRow extends React.Component {
@@ -154,7 +156,7 @@ export default class AlertTableRow extends React.Component {
     const { user, alert, alertSummary } = this.props;
     const { starred, checkboxSelected } = this.state;
 
-    const alertStatus = getStatus(alert.status);
+    const alertStatus = getStatus(alert.status, alertStatusMap);
     const tooltipText = alert.classifier_email
       ? `Classified by ${alert.classifier_email}`
       : 'Classified automatically';

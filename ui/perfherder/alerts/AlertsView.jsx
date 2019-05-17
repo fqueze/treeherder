@@ -15,7 +15,7 @@ import { faCog } from '@fortawesome/free-solid-svg-icons';
 import perf from '../../js/perf';
 import withValidation from '../Validation';
 import { convertParams, getFrameworkData, getStatus } from '../helpers';
-import { alertSummaryStatus, endpoints } from '../constants';
+import { summaryStatusMap, endpoints } from '../constants';
 import { createQueryParams, getApiUrl } from '../../helpers/url';
 import { getData, processResponse } from '../../helpers/http';
 import ErrorMessages from '../../shared/ErrorMessages';
@@ -51,7 +51,7 @@ export class AlertsView extends React.Component {
     const { validated } = this.props;
     const statusParam = convertParams(validated, 'status');
     if (!statusParam) {
-      return Object.keys(alertSummaryStatus)[1];
+      return Object.keys(summaryStatusMap)[1];
     }
     return getStatus(parseInt(validated.status, 10));
   };
@@ -65,7 +65,7 @@ export class AlertsView extends React.Component {
   };
 
   updateStatus = status => {
-    const statusId = alertSummaryStatus[status];
+    const statusId = summaryStatusMap[status];
     this.props.validated.updateParams({ status: statusId });
     // TODO fetch new data, use statusId as param
     this.setState({ status }, () => this.fetchAlertSummaries());
@@ -76,7 +76,7 @@ export class AlertsView extends React.Component {
     this.props.$state.go('alerts', {
       page,
       framework: framework.id,
-      status: alertSummaryStatus[status],
+      status: summaryStatusMap[status],
     });
   };
 
@@ -118,9 +118,9 @@ export class AlertsView extends React.Component {
       };
     }
 
-    if (!id && alertSummaryStatus[status] !== -1) {
+    if (!id && summaryStatusMap[status] !== -1) {
       // -1 ('all') is created for UI purposes but is not a valid API parameter
-      params.status = alertSummaryStatus[status];
+      params.status = summaryStatusMap[status];
     }
 
     const url = getApiUrl(
@@ -150,9 +150,9 @@ export class AlertsView extends React.Component {
         const index = alertSummaries.findIndex(
           item => item.id === summary.results[0].id,
         );
-        console.log(index);
+
         alertSummaries.splice(index, 1, summary.results[0]);
-        console.log(alertSummaries);
+
       }
       updates = {
         ...updates,
@@ -164,7 +164,7 @@ export class AlertsView extends React.Component {
     } else {
       updates = { ...updates, ...response };
     }
-    console.log(updates);
+
     this.setState(updates);
   }
 
@@ -188,7 +188,7 @@ export class AlertsView extends React.Component {
 
     const alertDropdowns = [
       {
-        options: Object.keys(alertSummaryStatus),
+        options: Object.keys(summaryStatusMap),
         selectedItem: status,
         updateData: this.updateStatus,
       },

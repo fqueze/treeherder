@@ -18,7 +18,7 @@ import {
 } from '../helpers';
 import { getData, update } from '../../helpers/http';
 import { getApiUrl, bzBaseUrl, createQueryParams } from '../../helpers/url';
-import { endpoints, alertSummaryStatus } from '../constants';
+import { endpoints, summaryStatusMap } from '../constants';
 
 import BugModal from './BugModal';
 import NotesModal from './NotesModal';
@@ -175,7 +175,7 @@ export default class StatusDropdown extends React.Component {
                   <DropdownItem
                     onClick={() =>
                       this.changeAlertSummary({
-                        status: alertSummaryStatus.investigating,
+                        status: summaryStatusMap.investigating,
                       })
                     }
                   >
@@ -186,7 +186,7 @@ export default class StatusDropdown extends React.Component {
                   <DropdownItem
                     onClick={() =>
                       this.changeAlertSummary({
-                        status: alertSummaryStatus.wontfix,
+                        status: summaryStatusMap.wontfix,
                       })
                     }
                   >
@@ -198,7 +198,7 @@ export default class StatusDropdown extends React.Component {
                   <DropdownItem
                     onClick={() =>
                       this.changeAlertSummary({
-                        status: alertSummaryStatus.backedout,
+                        status: summaryStatusMap.backedout,
                       })
                     }
                   >
@@ -210,7 +210,7 @@ export default class StatusDropdown extends React.Component {
                   <DropdownItem
                     onClick={() =>
                       this.changeAlertSummary({
-                        status: alertSummaryStatus.fixed,
+                        status: summaryStatusMap.fixed,
                       })
                     }
                   >

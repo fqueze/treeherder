@@ -11,7 +11,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
-import { alertStatus } from '../constants';
+import { alertStatusMap } from '../constants';
 import { modifyAlert } from '../helpers';
 
 export default class AlertActionPanel extends React.Component {
@@ -46,7 +46,7 @@ export default class AlertActionPanel extends React.Component {
     const summariesToUpdate = [...[alertSummary], ...otherAlertSummaries];
 
     await this.modifySelectedAlerts(selectedAlerts, {
-      status: alertStatus.untriaged,
+      status: alertStatusMap.untriaged,
       related_summary_id: null,
     });
 
@@ -58,14 +58,23 @@ export default class AlertActionPanel extends React.Component {
     summariesToUpdate.forEach(summary => fetchAlertSummaries(summary.id));
   };
 
+  updateAlerts = async newStatus => {
+    const { selectedAlerts, fetchAlertSummaries, alertSummary } = this.props;
+
+    await this.modifySelectedAlerts(selectedAlerts, {
+      status: alertStatusMap[newStatus],
+    });
+    fetchAlertSummaries(alertSummary.id);
+  };
+
   hasTriagedAlerts = () =>
     this.props.selectedAlerts.some(
-      alert => alert.status !== alertStatus.untriaged,
+      alert => alert.status !== alertStatusMap.untriaged,
     );
 
   allAlertsConfirming = () =>
     this.props.selectedAlerts.every(
-      alert => alert.status === alertStatus.confirming,
+      alert => alert.status === alertStatusMap.confirming,
     );
 
   render() {
@@ -90,7 +99,10 @@ export default class AlertActionPanel extends React.Component {
             <Col sm="auto" className="p-2">
               <SimpleTooltip
                 text={
-                  <Button color="secondary" onClick={() => {}}>
+                  <Button
+                    color="secondary"
+                    onClick={() => this.updateAlerts('confirming')}
+                  >
                     <FontAwesomeIcon icon={faClock} /> Confirming
                   </Button>
                 }
@@ -105,7 +117,10 @@ export default class AlertActionPanel extends React.Component {
               <Col sm="auto" className="p-2">
                 <SimpleTooltip
                   text={
-                    <Button color="secondary" onClick={() => {}}>
+                    <Button
+                      color="secondary"
+                      onClick={() => this.updateAlerts('acknowledged')}
+                    >
                       <FontAwesomeIcon icon={faCheck} /> Acknowledge
                     </Button>
                   }
@@ -117,7 +132,10 @@ export default class AlertActionPanel extends React.Component {
               <Col sm="auto" className="p-2">
                 <SimpleTooltip
                   text={
-                    <Button color="secondary" onClick={() => {}}>
+                    <Button
+                      color="secondary"
+                      onClick={() => this.updateAlerts('invalid')}
+                    >
                       <FontAwesomeIcon icon={faBan} /> Mark invalid
                     </Button>
                   }

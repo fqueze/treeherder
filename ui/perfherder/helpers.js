@@ -18,7 +18,7 @@ import {
   tValueCareMin,
   tValueConfidence,
   noiseMetricTitle,
-  alertSummaryStatus,
+  summaryStatusMap,
 } from './constants';
 
 export const displayNumber = input =>
@@ -618,7 +618,7 @@ export const modifySelectedAlerts = (alertSummary, modification) => {
       }),
   );
 };
-// TODO replace usage with alertSummaryStatus
+// TODO replace usage with summaryStatusMap
 export const getAlertSummaryStatusText = alertSummary =>
   Object.values(phAlertSummaryStatusMap).find(
     status => status.id === alertSummary.status,
@@ -738,5 +738,4 @@ export const getFrameworkData = props => {
   return { id: 1, name: 'talos' };
 };
 
-export const getStatus = status =>
-  Object.entries(alertSummaryStatus).find(item => status === item[1])[0];
+export const getStatus = (status, statusMap=summaryStatusMap) => Object.entries(statusMap).find(item => status === item[1])[0];
