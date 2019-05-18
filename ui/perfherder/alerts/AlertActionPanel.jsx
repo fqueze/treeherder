@@ -20,7 +20,8 @@ export default class AlertActionPanel extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      showModal: false,
+      showDownstreamModal: false,
+      showReassignedModal: false,
     };
   }
 
@@ -99,30 +100,52 @@ export default class AlertActionPanel extends React.Component {
       alert => alert.status === alertStatusMap.confirming,
     );
 
-  updateAndClose = async (event, alertId) => {
+  updateAndClose = async (event, alertId, newStatus, modal) => {
     event.preventDefault();
-    this.resetAlerts('downstream', parseInt(alertId), 10);
-    this.toggle();
+    this.resetAlerts(newStatus, parseInt(alertId, 10));
+    this.toggle(modal);
   };
 
-  toggle = () => {
+  toggle = state => {
     this.setState(prevState => ({
-      showModal: !prevState.showModal,
+      [state]: !prevState[state],
     }));
   };
 
   render() {
-    const { showModal } = this.state;
+    const { showDownstreamModal, showReassignedModal } = this.state;
 
     return (
       <div className="bg-lightgray">
         <AlertModal
-          toggle={this.toggle}
-          showModal={showModal}
+          toggle={() => this.toggle('showDownstreamModal')}
+          showModal={showDownstreamModal}
           header="Mark Alerts Downstream"
           title="Alert Number"
-          updateAndClose={this.updateAndClose}
+          updateAndClose={(event, inputValue) =>
+            this.updateAndClose(
+              event,
+              inputValue,
+              'downstream',
+              'showDownstreamModal',
+            )
+          }
         />
+        <AlertModal
+          toggle={this.toggle}
+          showModal={showReassignedModal}
+          header="Reassign Alerts"
+          title="Alert Number"
+          updateAndClose={(event, inputValue) =>
+            this.updateAndClose(
+              event,
+              inputValue,
+              'reassigned',
+              'showReassignedModal',
+            )
+          }
+        />
+
         <Row className="m-0 px-2 py-3">
           {this.hasTriagedAlerts() && (
             <Col sm="auto" className="p-2">
@@ -189,7 +212,10 @@ export default class AlertActionPanel extends React.Component {
               <Col sm="auto" className="p-2">
                 <SimpleTooltip
                   text={
-                    <Button color="secondary" onClick={this.toggle}>
+                    <Button
+                      color="secondary"
+                      onClick={() => this.toggle('showDownstreamModal')}
+                    >
                       <FontAwesomeIcon icon={faLevelDownAlt} /> Mark downstream
                     </Button>
                   }
@@ -197,11 +223,13 @@ export default class AlertActionPanel extends React.Component {
                 />
               </Col>
 
-              {/* onClick reassignAlerts(alertSummary) */}
               <Col sm="auto" className="p-2">
                 <SimpleTooltip
                   text={
-                    <Button color="secondary" onClick={() => {}}>
+                    <Button
+                      color="secondary"
+                      onClick={() => this.toggle('showReassignedModal')}
+                    >
                       <FontAwesomeIcon icon={faArrowAltCircleRight} /> Reassign
                     </Button>
                   }
