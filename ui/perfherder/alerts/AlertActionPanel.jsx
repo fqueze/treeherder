@@ -29,7 +29,7 @@ export default class AlertActionPanel extends React.Component {
   modifySelectedAlerts = (selectedAlerts, modification) =>
     Promise.all(selectedAlerts.map(alert => modifyAlert(alert, modification)));
 
-  resetAlerts = async () => {
+  resetAlerts = async (newStatus, alertId = null) => {
     const {
       selectedAlerts,
       alertSummaries,
@@ -37,22 +37,29 @@ export default class AlertActionPanel extends React.Component {
       fetchAlertSummaries,
     } = this.props;
 
-    // TODO is this still needed (seems like it'd be to support an edge case)?
-    // We need to update the summary and any related summaries when updating the alert
-    const otherAlertSummaries = selectedAlerts
-      .map(alert =>
-        alertSummaries.find(
-          alertSummary => alertSummary.id === alert.related_summary_id,
-        ),
-      )
-      .filter(alertSummary => alertSummary !== undefined);
-
-    const summariesToUpdate = [...[alertSummary], ...otherAlertSummaries];
+    let otherAlertSummaries;
 
     await this.modifySelectedAlerts(selectedAlerts, {
-      status: alertStatusMap.untriaged,
-      related_summary_id: null,
+      status: alertStatusMap[newStatus],
+      related_summary_id: alertId,
     });
+
+    // We need to update the summary and any related summaries
+    if (alertId) {
+      otherAlertSummaries = alertSummaries.filter(
+        summary => summary.id === alertId,
+      );
+    } else {
+      otherAlertSummaries = selectedAlerts
+        .map(alert =>
+          alertSummaries.find(
+            summary => summary.id === alert.related_summary_id,
+          ),
+        )
+        .filter(summary => summary !== undefined);
+    }
+
+    const summariesToUpdate = [...[alertSummary], ...otherAlertSummaries];
 
     // when an alert status is updated via the API, the corresponding
     // alertSummary status is also updated (in the backend) so we need
@@ -92,9 +99,9 @@ export default class AlertActionPanel extends React.Component {
       alert => alert.status === alertStatusMap.confirming,
     );
 
-  updateAndClose = async (event, params) => {
+  updateAndClose = async (event, alertId) => {
     event.preventDefault();
-    // updateAlerts
+    this.resetAlerts('downstream', parseInt(alertId), 10);
     this.toggle();
   };
 
@@ -103,22 +110,6 @@ export default class AlertActionPanel extends React.Component {
       showModal: !prevState.showModal,
     }));
   };
-
-  //   $scope.update = () => {
-  //     const newId = parseInt(
-  //         $scope.modifyAlert.newId.$modelValue);
-
-  //     modifySelectedAlerts(alertSummary, {
-  //         status: phAlertStatusMap.DOWNSTREAM.id,
-  //         related_summary_id: newId,
-  //     }).then(() => {
-  //             const summariesToUpdate = [alertSummary].concat(
-  //                 allAlertSummaries.find(alertSummary =>
-  //                     alertSummary.id === newId) || []);
-  //             $q.all(summariesToUpdate.map(alertSummary => refreshAlertSummary(alertSummary),
-  //           )).then(() => $uibModalInstance.close('downstreamed'));
-  //         });
-  // };
 
   render() {
     const { showModal } = this.state;
@@ -130,14 +121,17 @@ export default class AlertActionPanel extends React.Component {
           showModal={showModal}
           header="Mark Alerts Downstream"
           title="Alert Number"
-          updateAndClose={(event, inputValue) => console.log(inputValue)}
+          updateAndClose={this.updateAndClose}
         />
         <Row className="m-0 px-2 py-3">
           {this.hasTriagedAlerts() && (
             <Col sm="auto" className="p-2">
               <SimpleTooltip
                 text={
-                  <Button color="warning" onClick={this.resetAlerts}>
+                  <Button
+                    color="warning"
+                    onClick={() => this.resetAlerts('untriaged')}
+                  >
                     Reset
                   </Button>
                 }
@@ -192,7 +186,6 @@ export default class AlertActionPanel extends React.Component {
                 />
               </Col>
 
-              {/* onClick markAlertsDownstream(alertSummary) */}
               <Col sm="auto" className="p-2">
                 <SimpleTooltip
                   text={
