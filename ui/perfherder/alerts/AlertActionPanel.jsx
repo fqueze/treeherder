@@ -30,7 +30,7 @@ export default class AlertActionPanel extends React.Component {
   modifySelectedAlerts = (selectedAlerts, modification) =>
     Promise.all(selectedAlerts.map(alert => modifyAlert(alert, modification)));
 
-  resetAlerts = async (newStatus, alertId = null) => {
+  updateAndFetch = async (newStatus, alertId = null) => {
     const {
       selectedAlerts,
       alertSummaries,
@@ -45,7 +45,6 @@ export default class AlertActionPanel extends React.Component {
       related_summary_id: alertId,
     });
 
-    // We need to update the summary and any related summaries
     if (alertId) {
       otherAlertSummaries = alertSummaries.filter(
         summary => summary.id === alertId,
@@ -63,8 +62,8 @@ export default class AlertActionPanel extends React.Component {
     const summariesToUpdate = [...[alertSummary], ...otherAlertSummaries];
 
     // when an alert status is updated via the API, the corresponding
-    // alertSummary status is also updated (in the backend) so we need
-    // to fetch the updated alertSummary to capture the change in the UI
+    // alertSummary status and any related summaries are updated (in the backend)
+    // so we need to fetch them in order to capture the changes in the UI
     summariesToUpdate.forEach(summary => fetchAlertSummaries(summary.id));
     this.clearSelectedAlerts();
   };
@@ -102,7 +101,7 @@ export default class AlertActionPanel extends React.Component {
 
   updateAndClose = async (event, alertId, newStatus, modal) => {
     event.preventDefault();
-    this.resetAlerts(newStatus, parseInt(alertId, 10));
+    this.updateAndFetch(newStatus, parseInt(alertId, 10));
     this.toggle(modal);
   };
 
@@ -153,7 +152,7 @@ export default class AlertActionPanel extends React.Component {
                 text={
                   <Button
                     color="warning"
-                    onClick={() => this.resetAlerts('untriaged')}
+                    onClick={() => this.updateAndFetch('untriaged')}
                   >
                     Reset
                   </Button>
